@@ -415,6 +415,196 @@
       .btn { width: 100%; }
       .summary { grid-template-columns: 1fr; }
     }
+
+    /* DEFINITIEVE LAYOUTAANPASSINGEN */
+    .card-header {
+      position: relative;
+      justify-content: center;
+      text-align: center;
+    }
+    .card-header h2 {
+      width: 100%;
+      margin: 0;
+      text-align: center;
+    }
+    .card-header .step {
+      position: absolute;
+      top: 9px;
+      left: 14px;
+      font-size: 12px;
+      line-height: 1;
+      z-index: 1;
+    }
+    .results-header #resultsCount {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    /* Uploadknop en bestandsbalk exact gelijk en gecentreerd */
+    .left-stack > .card:first-child .card-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .upload-zone,
+    .file-info {
+      width: 414px;
+      max-width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+      justify-content: center;
+    }
+    .file-info {
+      position: relative;
+    }
+    .file-info .file-name {
+      width: 100%;
+      text-align: center;
+    }
+    .file-info #rowCount {
+      position: absolute;
+      right: 12px;
+    }
+
+    /* 18 opties, exact 3 kolommen x 6 rijen, Alles linksboven */
+    .cost-options-box {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-rows: repeat(6, minmax(42px, 1fr));
+      grid-auto-flow: column;
+      gap: 9px 10px;
+      padding: 18px 20px;
+    }
+    .select-all-row {
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border-radius: 9px;
+      display: flex;
+    }
+    .check-grid {
+      display: contents;
+    }
+    .check-row {
+      width: 100%;
+      min-width: 0;
+      min-height: 42px;
+      padding: 8px 10px;
+      border: 1px solid #AFC1D2;
+      border-radius: 9px;
+      background: #F8FBFD;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      line-height: 1.2;
+    }
+    .select-all-row .check-row {
+      height: 100%;
+      border-color: #F8CA79;
+      background: #FFF8E8;
+      color: var(--traxall-blue);
+    }
+    .check-row input {
+      width: 17px;
+      height: 17px;
+      margin: 0;
+    }
+
+    /* Actierij en samenvatting gecentreerd met drie gelijke kolommen */
+    .actions-card .card-body {
+      padding-top: 16px;
+    }
+    .actions,
+    .summary {
+      width: min(100%, 930px);
+      margin-left: auto;
+      margin-right: auto;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .actions {
+      align-items: stretch;
+      justify-content: center;
+    }
+    .action-language-box,
+    #processBtn,
+    #exportBtn {
+      width: 100%;
+      min-width: 0;
+      height: 52px;
+      min-height: 52px;
+      margin: 0;
+      order: initial;
+      justify-content: center;
+    }
+    .action-language-box {
+      padding: 6px 9px;
+      gap: 8px;
+    }
+    .action-language-box .language-label {
+      font-size: 12px;
+    }
+    .summary {
+      margin-top: 12px;
+    }
+    .summary-item {
+      width: 100%;
+      min-width: 0;
+    }
+
+    @media (max-width: 850px) {
+      .cost-options-box {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: repeat(9, minmax(42px, 1fr));
+      }
+      .actions,
+      .summary {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 560px) {
+      .cost-options-box {
+        grid-template-columns: 1fr;
+        grid-template-rows: none;
+        grid-auto-flow: row;
+      }
+    }
+
+
+    /* Laatste kleine opmaakaanpassingen */
+    .card-header .step {
+      font-size: 13px;
+    }
+    .cost-options-box .check-row {
+      font-size: 13px;
+    }
+    .action-language-box .flag-button {
+      width: 40px !important;
+      min-width: 40px !important;
+      max-width: 40px !important;
+      height: 40px !important;
+      min-height: 40px !important;
+      max-height: 40px !important;
+      flex: 0 0 40px !important;
+      padding: 3px !important;
+      border-radius: 7px;
+    }
+    .action-language-box .flag-button img {
+      width: 30px !important;
+      min-width: 30px !important;
+      max-width: 30px !important;
+      height: 30px !important;
+      min-height: 30px !important;
+      max-height: 30px !important;
+      object-fit: contain !important;
+      border-radius: 50%;
+    }
   </style>
 </head>
 <body>
@@ -530,7 +720,8 @@
     </section>
 
     <section class="card results-card" id="resultsCard">
-      <div class="card-header">
+      <div class="card-header results-header">
+        <span class="step">Stap 4</span>
         <h2>Resultaten</h2>
         <span id="resultsCount">0 regels</span>
       </div>
@@ -642,15 +833,17 @@
       'resultsCard','resultsEmpty','resultsTableWrap','resultsHead','resultsBody','resultsCount'
     ].map(id => [id, document.getElementById(id)]));
 
+    const today = new Date();
+    const previousMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const previousMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
     const fpOptions = {
       dateFormat: 'd-m-Y',
-      defaultDate: new Date(),
       allowInput: true,
       locale: flatpickr.l10ns.nl,
       disableMobile: true
     };
-    const dateFromPicker = flatpickr(els.dateFrom, fpOptions);
-    const dateToPicker = flatpickr(els.dateTo, fpOptions);
+    const dateFromPicker = flatpickr(els.dateFrom, { ...fpOptions, defaultDate: previousMonthStart });
+    const dateToPicker = flatpickr(els.dateTo, { ...fpOptions, defaultDate: previousMonthEnd });
 
     function renderCostTypes() {
       els.costTypeList.innerHTML = COST_TYPES.map((name, index) => `
