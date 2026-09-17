@@ -338,6 +338,95 @@
     .summary.visible { display: grid; }
     .summary-item { padding: 12px 14px; }
 
+    /* Definitieve indeling */
+    .topbar { justify-content: flex-start; }
+    .actions { align-items: center; }
+    .action-language-box {
+      margin-left: auto;
+      order: 1;
+      gap: 9px;
+      padding: 7px 9px;
+      border-radius: 9px;
+    }
+    .action-language-box .language-label { font-size: 12px; white-space: nowrap; }
+    .action-language-box .language-options { gap: 5px; }
+    .action-language-box .flag-button {
+      width: 42px !important;
+      min-width: 42px !important;
+      max-width: 42px !important;
+      height: 32px !important;
+      min-height: 32px !important;
+      max-height: 32px !important;
+      padding: 3px !important;
+      flex: 0 0 42px !important;
+    }
+    .action-language-box .flag-button img {
+      width: 30px !important;
+      min-width: 30px !important;
+      max-width: 30px !important;
+      height: 20px !important;
+      min-height: 20px !important;
+      max-height: 20px !important;
+    }
+    #processBtn { order: 2; }
+    #exportBtn { order: 3; }
+    .cost-options-box {
+      padding: 12px 14px;
+      border: 1px solid #AFC1D2;
+      border-radius: 10px;
+      background: #F8FBFD;
+    }
+    .select-all-row {
+      width: max-content;
+      margin: 0 auto 10px;
+      padding: 6px 12px;
+      display: flex;
+      justify-content: center;
+    }
+    .select-all-row .check-row { min-height: auto; align-items: center; }
+    .results-card { margin-top: 18px; }
+    .results-table-wrap {
+      display: none;
+      width: 100%;
+      max-height: 520px;
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .results-table-wrap.visible { display: block; }
+    .results-empty {
+      padding: 22px;
+      color: var(--muted);
+      text-align: center;
+      background: #F8FBFD;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .results-empty.hidden { display: none; }
+    .results-table {
+      width: 100%;
+      min-width: 1650px;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .results-table th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      padding: 10px 9px;
+      color: #fff;
+      background: var(--traxall-blue);
+      text-align: center;
+      white-space: nowrap;
+    }
+    .results-table td {
+      padding: 8px 9px;
+      border-bottom: 1px solid #dde3eb;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .results-table tbody tr:nth-child(even) td { background: #f5f7fa; }
+
     .flatpickr-calendar { font-family: "Century Gothic", Arial, sans-serif; }
     .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange { background: var(--traxall-orange); border-color: var(--traxall-orange); color: var(--traxall-blue); }
 
@@ -354,7 +443,10 @@
       .card-body { padding: 18px; }
       .check-grid { grid-template-rows: none; grid-auto-flow: row; grid-template-columns: 1fr; }
       .period-grid { grid-template-columns: 1fr; }
-      .actions { flex-direction: column; }
+      .actions { flex-direction: column; align-items: stretch; }
+      .action-language-box { margin-left: 0; order: 1; justify-content: center; }
+      #processBtn { order: 2; }
+      #exportBtn { order: 3; }
       .btn { width: 100%; }
       .summary { grid-template-columns: 1fr; }
     }
@@ -560,7 +652,8 @@
 
     const els = Object.fromEntries([
       'fileInput','uploadZone','fileInfo','fileName','rowCount','dateFrom','dateTo','costTypeList','selectAll',
-      'processBtn','exportBtn','status','summary','summarySource','summaryMatched','summaryTotal','langNL','langEN'
+      'processBtn','exportBtn','status','summary','summarySource','summaryMatched','summaryTotal','langNL','langEN',
+      'resultsCard','resultsEmpty','resultsTableWrap','resultsHead','resultsBody'
     ].map(id => [id, document.getElementById(id)]));
 
     const fpOptions = {
@@ -736,6 +829,26 @@
       };
     }
 
+    function formatDateForDisplay(value) {
+      if (!(value instanceof Date) || Number.isNaN(value.getTime())) return '';
+      return `${String(value.getUTCDate()).padStart(2, '0')}-${String(value.getUTCMonth() + 1).padStart(2, '0')}-${value.getUTCFullYear()}`;
+    }
+
+    function renderResultsTable() {
+      const columns = COLUMNS[language];
+      els.resultsHead.innerHTML = `<tr>${columns.map(([, header]) => `<th>${escapeHtml(header)}</th>`).join('')}</tr>`;
+      const rows = processedRows.length ? processedRows : [{ Fournisseur: UI[language].noDeductionsCell }];
+      els.resultsBody.innerHTML = rows.map(row => `<tr>${columns.map(([key, , type]) => {
+        let value = row[key];
+        if (type === 'date') value = formatDateForDisplay(value);
+        else if (type === 'number') value = new Intl.NumberFormat(language === 'nl' ? 'nl-NL' : 'en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value || 0));
+        else value = cleanText(value);
+        return `<td>${escapeHtml(value)}</td>`;
+      }).join('')}</tr>`).join('');
+      els.resultsEmpty.classList.add('hidden');
+      els.resultsTableWrap.classList.add('visible');
+    }
+
     function processDeductions() {
       invalidateResult();
       if (!sourceRows.length) return setStatus(UI.nl.noData, 'error');
@@ -764,9 +877,15 @@
       const total = processedRows.reduce((sum, row) => sum + row.TTC, 0);
       els.summaryTotal.textContent = new Intl.NumberFormat(language === 'nl' ? 'nl-NL' : 'en-GB', { style: 'currency', currency: 'EUR' }).format(total);
 
+      renderResultsTable();
       const baseMessage = processedRows.length ? UI.nl.processed : UI.nl.noDeductions;
       const dateWarning = invalidDateCount ? ` ${invalidDateCount} ${UI.nl.invalidInvoiceDates}.` : '';
       setStatus(baseMessage + dateWarning, processedRows.length ? 'success' : '');
+    }
+
+    function dateToExcelSerial(value) {
+      if (!(value instanceof Date) || Number.isNaN(value.getTime())) return null;
+      return Math.floor(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()) / 86400000) + 25569;
     }
 
     async function exportToExcel() {
@@ -790,7 +909,9 @@
         const output = {};
         columns.forEach(([key, , type]) => {
           const value = source[key];
-          output[key] = type === 'text' ? cleanText(value) : (value ?? null);
+          if (type === 'text') output[key] = cleanText(value);
+          else if (type === 'date') output[key] = dateToExcelSerial(value);
+          else output[key] = value ?? null;
         });
         worksheet.addRow(output);
       });
@@ -815,17 +936,17 @@
 
       columns.forEach(([, , type], index) => {
         const column = worksheet.getColumn(index + 1);
-        if (type === 'number') {
-          column.numFmt = '#,##0.00;[Red]-#,##0.00';
-          column.alignment = { vertical: 'middle', horizontal: 'right' };
-        } else if (type === 'date') {
-          column.numFmt = 'dd-mm-yyyy';
-          column.alignment = { vertical: 'middle', horizontal: 'center' };
-        } else {
-          column.numFmt = '@';
-        }
-      });
+        if (type === 'number') column.numFmt = '#,##0.00;[Red]-#,##0.00';
+        else if (type === 'date') column.numFmt = 'dd-mm-yyyy';
+        else column.numFmt = '@';
 
+        column.eachCell({ includeEmpty: true }, (cell, rowNumber) => {
+          cell.alignment = {
+            vertical: 'middle',
+            horizontal: rowNumber === 1 ? 'left' : (type === 'number' || type === 'date' ? 'right' : 'left')
+          };
+        });
+      });
       worksheet.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: columns.length } };
       worksheet.getRow(1).eachCell(cell => { cell.alignment = { vertical: 'middle', horizontal: 'left' }; });
 
