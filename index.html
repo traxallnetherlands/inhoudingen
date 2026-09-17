@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TraXall Inhoudingen verwerken</title>
+  <title>TraXall Inhoudingen</title>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
@@ -260,6 +260,84 @@
     .summary-item span { display: block; color: var(--muted); font-size: 11px; margin-bottom: 5px; }
     .summary-item strong { color: var(--traxall-blue); font-size: 18px; }
 
+    /* Compacte definitieve layout */
+    .topbar {
+      width: min(1400px, calc(100% - 40px));
+      min-height: 92px;
+      margin: 20px auto 0;
+      padding: 18px 24px;
+    }
+    .language-box {
+      gap: 18px;
+      padding: 16px 20px;
+      border-radius: 12px;
+    }
+    .language-label { font-size: 18px; }
+    .language-options { gap: 12px; }
+    .language-options .flag-button {
+      width: 76px !important;
+      min-width: 76px !important;
+      max-width: 76px !important;
+      height: 56px !important;
+      min-height: 56px !important;
+      max-height: 56px !important;
+      padding: 6px !important;
+      flex: 0 0 76px !important;
+    }
+    .language-options .flag-button img {
+      width: 58px !important;
+      min-width: 58px !important;
+      max-width: 58px !important;
+      height: 38px !important;
+      min-height: 38px !important;
+      max-height: 38px !important;
+    }
+    .card-header { min-height: 54px; padding: 13px 20px; }
+    .card-header h2, .card-header .step {
+      color: var(--traxall-blue);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+    .card-body { padding: 18px 20px; }
+    .upload-zone {
+      min-height: 58px;
+      padding: 9px 14px;
+      flex-direction: row;
+      justify-content: flex-start;
+      gap: 12px;
+      text-align: left;
+      border-style: solid;
+    }
+    .upload-icon { width: 30px; height: 30px; margin: 0; flex: 0 0 auto; }
+    .upload-zone strong { font-size: 14px; }
+    .upload-zone span { display: none; }
+    .file-info { margin-top: 10px; min-height: 40px; padding: 9px 12px; }
+    .period-grid { margin-top: 14px; gap: 12px; }
+    .date-wrap input { height: 40px; }
+    .select-all-row { margin-bottom: 10px; padding: 6px 9px; border-radius: 8px; }
+    .check-grid {
+      display: grid;
+      grid-template-rows: repeat(6, minmax(24px, auto));
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px 14px;
+    }
+    .check-row { min-height: 24px; gap: 7px; font-size: 12px; }
+    .check-row input { width: 15px; height: 15px; }
+    .actions-card { margin-top: 18px; }
+    .actions-card .card-body { padding-bottom: 18px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 14px;
+      gap: 10px;
+    }
+    .summary.visible { display: grid; }
+    .summary-item { padding: 12px 14px; }
+
     .flatpickr-calendar { font-family: "Century Gothic", Arial, sans-serif; }
     .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange { background: var(--traxall-orange); border-color: var(--traxall-orange); color: var(--traxall-blue); }
 
@@ -274,7 +352,8 @@
       .language-box { align-self: flex-end; }
       main { width: min(100% - 22px, 1320px); margin-top: 18px; }
       .card-body { padding: 18px; }
-      .check-grid, .period-grid { grid-template-columns: 1fr; }
+      .check-grid { grid-template-rows: none; grid-auto-flow: row; grid-template-columns: 1fr; }
+      .period-grid { grid-template-columns: 1fr; }
       .actions { flex-direction: column; }
       .btn { width: 100%; }
       .summary { grid-template-columns: 1fr; }
@@ -287,13 +366,12 @@
       <img src="logo-traxall.png" alt="TraXall logo">
       <div class="brand-divider"></div>
       <div class="brand-copy">
-        <h1 id="pageTitle">Inhoudingen verwerken</h1>
-        <p id="pageSubtitle">Selecteer factuurregels en exporteer een gebruiksklaar Excel-overzicht.</p>
+        <h1 id="pageTitle">Inhoudingen</h1>
       </div>
     </div>
 
     <div class="language-box" aria-label="Taalkeuze">
-      <span class="language-label" id="languageLabel">Taal Excel-export:</span>
+      <span class="language-label" id="languageLabel">Taal Inhoudingenfile:</span>
       <div class="language-options">
         <button type="button" class="flag-button active" id="langNL" aria-label="Nederlandse Excel-export" title="Nederlandse Excel-export"><img src="vlag-nl.png" alt="Nederlandse vlag"></button>
         <button type="button" class="flag-button" id="langEN" aria-label="Engelse Excel-export" title="Engelse Excel-export"><img src="vlag-eng.png" alt="Britse vlag"></button>
@@ -314,8 +392,8 @@
               <path d="M4 15.5A4.5 4.5 0 0 1 8.5 11h.3A6 6 0 1 1 19 15.3"></path>
               <path d="M12 12v8m0-8-3 3m3-3 3 3"></path>
             </svg>
-            <strong id="uploadMain">Klik om een Excel-bestand te kiezen</strong>
-            <span id="uploadSub">of sleep het facturenoverzicht naar dit vak</span>
+            <strong id="uploadMain">Facturenoverzicht selecteren</strong>
+            
           </label>
           <input type="file" id="fileInput" accept=".xlsx,.xls,.xlsm">
 
@@ -381,9 +459,7 @@
           </button>
         </div>
 
-        <div class="status" id="status" role="status" aria-live="polite">Upload een facturenoverzicht, kies de factuurperiode en selecteer minimaal één kostensoort.</div>
-
-        <div class="summary" id="summary">
+        <div class="summary visible" id="summary">
           <div class="summary-item"><span id="summarySourceLabel">Bronregels</span><strong id="summarySource">0</strong></div>
           <div class="summary-item"><span id="summaryMatchedLabel">Gevonden inhoudingen</span><strong id="summaryMatched">0</strong></div>
           <div class="summary-item"><span id="summaryTotalLabel">Totaal incl. BTW</span><strong id="summaryTotal">€ 0,00</strong></div>
@@ -527,15 +603,14 @@
     }
 
     function setStatus(message, type = '') {
-      els.status.textContent = message;
-      els.status.className = `status${type ? ` ${type}` : ''}`;
+      // Statusbalk bewust verwijderd; meldingen worden niet op de pagina getoond.
     }
 
     function invalidateResult() {
       hasProcessed = false;
       processedRows = [];
       els.exportBtn.disabled = true;
-      els.summary.classList.remove('visible');
+      els.summary.classList.add('visible');
     }
 
     function normalizeHeader(value) {
