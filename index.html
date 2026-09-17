@@ -618,6 +618,42 @@
     .summary-item strong {
       text-align: center;
     }
+
+    /* Stapnummers 1. t/m 4. */
+    .card-header .step {
+      font-size: 17px;
+      color: var(--traxall-orange);
+      text-transform: none;
+    }
+    .file-info #rowCount { display: none !important; }
+
+
+    /* Optionele volgorde-kleurweergave */
+    .workflow-step {
+      transition: filter .22s ease, opacity .22s ease, background-color .22s ease;
+    }
+    .workflow-step.is-locked {
+      filter: grayscale(42%) brightness(0.86);
+      opacity: 0.78;
+      background: #dfe3e8;
+    }
+    .workflow-step.is-locked .card-header,
+    .workflow-step.is-locked .card-body {
+      background-color: #e4e7eb;
+    }
+    .workflow-step.is-locked .upload-zone,
+    .workflow-step.is-locked .file-info,
+    .workflow-step.is-locked .date-wrap input,
+    .workflow-step.is-locked .cost-options-box,
+    .workflow-step.is-locked .check-row,
+    .workflow-step.is-locked .language-box,
+    .workflow-step.is-locked .summary-item,
+    .workflow-step.is-locked .results-empty {
+      background-color: #d8dde3 !important;
+      border-color: #aeb6c0 !important;
+    }
+    .workflow-step.is-active { filter: none; opacity: 1; background: var(--white); }
+
   </style>
 </head>
 <body>
@@ -629,10 +665,10 @@
   <main>
     <div class="grid">
       <div class="left-stack">
-      <section class="card">
+      <section class="card workflow-step step-one is-active" id="stepOneCard">
         <div class="card-header">
           <h2 id="uploadHeading">Facturenoverzicht uploaden</h2>
-          <span class="step" id="step1">Stap 1</span>
+          <span class="step" id="step1">1.</span>
         </div>
         <div class="card-body">
           <label class="upload-zone" id="uploadZone" for="fileInput">
@@ -652,10 +688,10 @@
 
         </div>
       </section>
-      <section class="card period-card">
+      <section class="card period-card workflow-step is-locked" id="stepTwoCard">
         <div class="card-header">
           <h2>Factuurdatum periode</h2>
-          <span class="step">Stap 2</span>
+          <span class="step">2.</span>
         </div>
         <div class="card-body">
           <div class="period-grid">
@@ -681,10 +717,10 @@
         </div>
       </section>
       </div>
-      <section class="card">
+      <section class="card workflow-step is-locked" id="stepThreeCard">
         <div class="card-header">
           <h2 id="costHeading">Meenemen voor inhoudingen</h2>
-          <span class="step" id="step2">Stap 3</span>
+          <span class="step" id="step2">3.</span>
         </div>
         <div class="card-body">
           <div class="cost-options-box">
@@ -700,10 +736,10 @@
       </section>
     </div>
 
-    <section class="card actions-card">
+    <section class="card actions-card workflow-step is-locked" id="stepFourCard">
       <div class="card-header">
         <h2 id="processHeading">Verwerken en exporteren</h2>
-        <span class="step" id="step3">Stap 4</span>
+        <span class="step" id="step3">4.</span>
       </div>
       <div class="card-body">
         <div class="actions">
@@ -732,9 +768,9 @@
       </div>
     </section>
 
-    <section class="card results-card" id="resultsCard">
+    <section class="card results-card workflow-step is-locked" id="resultsCard">
       <div class="card-header results-header">
-        <span class="step">Stap 4</span>
+        <span class="step">5.</span>
         <h2>Resultaten</h2>
         <span id="resultsCount">0 regels</span>
       </div>
@@ -843,7 +879,7 @@
     const els = Object.fromEntries([
       'fileInput','uploadZone','fileInfo','fileName','rowCount','dateFrom','dateTo','costTypeList','selectAll',
       'processBtn','exportBtn','status','summary','summarySource','summaryMatched','summaryTotal','langNL','langEN',
-      'resultsCard','resultsEmpty','resultsTableWrap','resultsHead','resultsBody','resultsCount'
+      'stepOneCard','stepTwoCard','stepThreeCard','stepFourCard','resultsCard','resultsEmpty','resultsTableWrap','resultsHead','resultsBody','resultsCount'
     ].map(id => [id, document.getElementById(id)]));
 
     const today = new Date();
@@ -855,8 +891,36 @@
       locale: flatpickr.l10ns.nl,
       disableMobile: true
     };
-    const dateFromPicker = flatpickr(els.dateFrom, { ...fpOptions, defaultDate: previousMonthStart });
-    const dateToPicker = flatpickr(els.dateTo, { ...fpOptions, defaultDate: previousMonthEnd });
+    const dateFromPicker = flatpickr(els.dateFrom, {
+      ...fpOptions,
+      defaultDate: null,
+      onOpen: (_, __, instance) => {
+        if (!els.dateFrom.value) instance.jumpToDate(previousMonthStart);
+      }
+    });
+    const dateToPicker = flatpickr(els.dateTo, {
+      ...fpOptions,
+      defaultDate: null,
+      onOpen: (_, __, instance) => {
+        if (!els.dateTo.value) instance.jumpToDate(previousMonthEnd);
+      }
+    });
+
+    function setWorkflowState() {
+      const hasFile = sourceRows.length > 0;
+      const hasDates = Boolean(parseTypedDate(els.dateFrom.value) && parseTypedDate(els.dateTo.value));
+      const hasChoice = Boolean(document.querySelector('.cost-check:checked'));
+      const setCard = (card, active) => {
+        if (!card) return;
+        card.classList.toggle('is-active', active);
+        card.classList.toggle('is-locked', !active);
+      };
+      setCard(els.stepOneCard, true);
+      setCard(els.stepTwoCard, hasFile);
+      setCard(els.stepThreeCard, hasFile && hasDates);
+      setCard(els.stepFourCard, hasFile && hasDates && hasChoice);
+      setCard(els.resultsCard, hasProcessed);
+    }
 
     function renderCostTypes() {
       els.costTypeList.innerHTML = COST_TYPES.map((name, index) => `
@@ -895,6 +959,7 @@
       processedRows = [];
       els.exportBtn.disabled = true;
       els.summary.classList.add('visible');
+      setWorkflowState();
     }
 
     function normalizeHeader(value) {
@@ -941,8 +1006,9 @@
         sourceRows = rowsFromMatrix(matrix, headerIndex);
         els.fileInfo.classList.add('loaded');
         els.fileName.textContent = file.name;
-        els.rowCount.textContent = `${sourceRows.length.toLocaleString(language === 'nl' ? 'nl-NL' : 'en-GB')} ${UI[language].rows}`;
+        els.rowCount.textContent = '';
         setStatus(UI[language].initialStatus, '');
+        setWorkflowState();
       } catch (error) {
         console.error(error);
         sourceRows = [];
@@ -1070,6 +1136,7 @@
       els.summaryTotal.textContent = new Intl.NumberFormat(language === 'nl' ? 'nl-NL' : 'en-GB', { style: 'currency', currency: 'EUR' }).format(total);
 
       renderResultsTable();
+      setWorkflowState();
       const baseMessage = processedRows.length ? UI.nl.processed : UI.nl.noDeductions;
       const dateWarning = invalidDateCount ? ` ${invalidDateCount} ${UI.nl.invalidInvoiceDates}.` : '';
       setStatus(baseMessage + dateWarning, processedRows.length ? 'success' : '');
@@ -1185,6 +1252,7 @@
 
     renderCostTypes();
     applyLanguage('nl');
+    setWorkflowState();
   </script>
 </body>
 </html>
