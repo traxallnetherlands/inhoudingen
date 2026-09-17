@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TraXall Inhoudingen</title>
+  <title>TraXall Inhoudingen verwerken</title>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
@@ -84,6 +84,28 @@
     }
     .flag-button .flag { font-size: 20px; }
     .flag-button span:last-child { font-size: 12px; font-weight: 700; }
+    .language-options .flag-button {
+      width: 38px !important;
+      min-width: 38px !important;
+      max-width: 38px !important;
+      height: 28px !important;
+      min-height: 28px !important;
+      max-height: 28px !important;
+      padding: 3px !important;
+      overflow: hidden !important;
+      flex: 0 0 38px !important;
+    }
+    .language-options .flag-button img {
+      display: block !important;
+      width: 28px !important;
+      min-width: 28px !important;
+      max-width: 28px !important;
+      height: 18px !important;
+      min-height: 18px !important;
+      max-height: 18px !important;
+      object-fit: cover !important;
+      border-radius: 2px;
+    }
     .flag-button:hover { transform: translateY(-1px); border-color: #B9C8D7; }
     .flag-button.active { border-color: var(--traxall-orange); box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.18); }
 
