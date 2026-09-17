@@ -1133,7 +1133,15 @@
       els.summarySource.textContent = sourceRows.length.toLocaleString(language === 'nl' ? 'nl-NL' : 'en-GB');
       els.summaryMatched.textContent = processedRows.length.toLocaleString(language === 'nl' ? 'nl-NL' : 'en-GB');
       const total = processedRows.reduce((sum, row) => sum + row.TTC, 0);
-      els.summaryTotal.textContent = new Intl.NumberFormat(language === 'nl' ? 'nl-NL' : 'en-GB', { style: 'currency', currency: 'EUR' }).format(total);
+      const formattedTotal = new Intl.NumberFormat(
+  'nl-NL',
+  {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }
+).format(total);
+
+els.summaryTotal.textContent = `€\u00A0${formattedTotal}`;
 
       renderResultsTable();
       setWorkflowState();
