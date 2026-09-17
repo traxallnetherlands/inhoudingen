@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TraXall Inhoudingen verwerken</title>
+  <title>TraXall Inhoudingen</title>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
@@ -14,11 +14,11 @@
 
   <style>
     :root {
-      --traxall-orange: #F59E0B;
-      --traxall-blue: #123B63;
-      --traxall-blue-2: #1F5A8A;
-      --traxall-light-blue: #EAF2F8;
-      --traxall-bg: #F4F7FA;
+      --traxall-orange: #f59e0b;
+      --traxall-blue: #213153;
+      --traxall-blue-2: #18243d;
+      --traxall-light-blue: #edf2f8;
+      --traxall-bg: #213153;
       --white: #FFFFFF;
       --text: #17324D;
       --muted: #64748B;
@@ -35,7 +35,7 @@
       min-height: 100vh;
       background: var(--traxall-bg);
       color: var(--text);
-      font-family: "Century Gothic", CenturyGothic, Arial, sans-serif;
+      font-family: Arial, sans-serif;
     }
 
     .topbar {
@@ -43,12 +43,13 @@
       min-height: 92px;
       padding: 18px clamp(20px, 5vw, 70px);
       background: var(--white);
-      border-bottom: 4px solid var(--traxall-orange);
+      border-bottom: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 24px;
-      box-shadow: 0 4px 18px rgba(18, 59, 99, 0.08);
+      border-radius: 10px;
+      box-shadow: 2px 2px 10px #0003;
     }
 
     .brand { display: flex; align-items: center; gap: 24px; min-width: 0; }
@@ -81,10 +82,12 @@
       cursor: pointer;
       transition: 0.18s ease;
     }
+    .flag-button .flag { font-size: 20px; }
+    .flag-button span:last-child { font-size: 12px; font-weight: 700; }
     .flag-button:hover { transform: translateY(-1px); border-color: #B9C8D7; }
     .flag-button.active { border-color: var(--traxall-orange); box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.18); }
 
-    main { width: min(1320px, calc(100% - 36px)); margin: 32px auto 46px; }
+    main { width: min(1400px, calc(100% - 40px)); margin: 20px auto 30px; }
 
     .grid {
       display: grid;
@@ -96,16 +99,17 @@
     .card {
       background: var(--white);
       border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
+      border-radius: 10px;
+      box-shadow: 2px 2px 10px #0003;
       overflow: hidden;
     }
 
     .card-header {
       min-height: 70px;
       padding: 18px 24px;
-      background: linear-gradient(135deg, var(--traxall-blue), var(--traxall-blue-2));
-      color: var(--white);
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      color: var(--traxall-blue);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -113,13 +117,13 @@
     }
 
     .card-header h2 { margin: 0; font-size: 18px; }
-    .step { color: #DCEAF5; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+    .step { color: #64748B; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
     .card-body { padding: 24px; }
 
     .upload-zone {
       min-height: 205px;
       border: 2px dashed #AFC1D2;
-      border-radius: 16px;
+      border-radius: 10px;
       background: #F8FBFD;
       display: flex;
       flex-direction: column;
@@ -211,7 +215,7 @@
     }
     .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 7px 15px rgba(18, 59, 99, 0.16); }
     .btn-primary { background: var(--traxall-orange); color: var(--traxall-blue); }
-    .btn-secondary { background: #107C41; color: var(--white); }
+    .btn-secondary { background: #16875d; color: var(--white); }
     .btn:disabled { background: #D7DCE1; color: #8B949E; cursor: not-allowed; box-shadow: none; }
     .btn svg { width: 21px; height: 21px; }
 
@@ -267,10 +271,10 @@
     </div>
 
     <div class="language-box" aria-label="Taalkeuze">
-      <span class="language-label" id="languageLabel">Taal:</span>
+      <span class="language-label" id="languageLabel">Taal Excel-export:</span>
       <div class="language-options">
-        <button type="button" class="flag-button active" id="langNL" aria-label="Nederlands" title="Nederlands">🇳🇱</button>
-        <button type="button" class="flag-button" id="langEN" aria-label="English" title="English">🇬🇧</button>
+        <button type="button" class="flag-button active" id="langNL" aria-label="Nederlandse Excel-export" title="Nederlandse Excel-export"><img src="vlag-nl.png" alt="Nederlandse vlag"></button>
+        <button type="button" class="flag-button" id="langEN" aria-label="Engelse Excel-export" title="Engelse Excel-export"><img src="vlag-eng.png" alt="Britse vlag"></button>
       </div>
     </div>
   </header>
@@ -375,6 +379,14 @@
       'Onderhoud doorbelast', 'Overige schadekosten', 'Parkeer kosten', 'Ruitschade',
       'Schade', 'Schadeherstel Pool', 'Toll', 'Veerpont', 'Wassen'
     ];
+
+    const COST_TRANSLATIONS = {
+      'Administratiekosten Boete':'Fine administration costs','Administratiekosten Tol':'Toll administration costs',
+      'Bandenschade':'Tyre damage','Boetes':'Fines','Diefstal':'Theft','Doorbelaste Hulpverlening':'Recharged roadside assistance',
+      'Eigen risico':'Deductible','Herstel Laadpunt':'Charging point repair','Onderhoud doorbelast':'Recharged maintenance',
+      'Overige schadekosten':'Other damage costs','Parkeer kosten':'Parking costs','Ruitschade':'Glass damage',
+      'Schade':'Damage','Schadeherstel Pool':'Pool damage repair','Toll':'Toll','Veerpont':'Ferry','Wassen':'Car wash'
+    };
 
     const SOURCE_HEADERS = [
       'Produit', 'Immat', 'Prenom_conducteur', 'Nom_conducteur', 'Matricule_conducteur',
@@ -484,22 +496,12 @@
 
     function applyLanguage(nextLanguage) {
       language = nextLanguage;
-      document.documentElement.lang = language;
       els.langNL.classList.toggle('active', language === 'nl');
       els.langEN.classList.toggle('active', language === 'en');
       els.langNL.setAttribute('aria-pressed', String(language === 'nl'));
       els.langEN.setAttribute('aria-pressed', String(language === 'en'));
-
-      const text = UI[language];
-      Object.entries(text).forEach(([id, value]) => {
-        const node = document.getElementById(id);
-        if (node) node.textContent = value;
-      });
-
-      if (!sourceRows.length) els.fileName.textContent = text.noFile;
-      if (!hasProcessed) setStatus(text.initialStatus, '');
-      dateFromPicker.set('locale', language === 'nl' ? flatpickr.l10ns.nl : 'default');
-      dateToPicker.set('locale', language === 'nl' ? flatpickr.l10ns.nl : 'default');
+      invalidateResult();
+      setStatus('De taalkeuze geldt alleen voor de Excel-export. Klik op Inhoudingen verwerken om de export opnieuw klaar te zetten.', '');
     }
 
     function setStatus(message, type = '') {
@@ -572,22 +574,27 @@
 
     function parseDateOnly(value) {
       if (value === null || value === undefined || value === '') return null;
-      if (value instanceof Date && !Number.isNaN(value.getTime())) return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+      if (value instanceof Date && !Number.isNaN(value.getTime())) return new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate(), 12, 0, 0));
 
       if (typeof value === 'number' && Number.isFinite(value)) {
         const parts = XLSX.SSF.parse_date_code(value);
         if (!parts) return null;
-        return new Date(parts.y, parts.m - 1, parts.d);
+        return new Date(Date.UTC(parts.y, parts.m - 1, parts.d, 12, 0, 0));
       }
 
       const text = String(value).trim();
       let match = text.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
-      if (match) return safeLocalDate(+match[3], +match[2], +match[1]);
+      if (match) return safeUtcDate(+match[3], +match[2], +match[1]);
       match = text.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?:[ T].*)?$/);
-      if (match) return safeLocalDate(+match[1], +match[2], +match[3]);
+      if (match) return safeUtcDate(+match[1], +match[2], +match[3]);
 
       const parsed = new Date(text);
-      return Number.isNaN(parsed.getTime()) ? null : new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+      return Number.isNaN(parsed.getTime()) ? null : new Date(Date.UTC(parsed.getUTCFullYear(), parsed.getUTCMonth(), parsed.getUTCDate(), 12, 0, 0));
+    }
+
+    function safeUtcDate(year, month, day) {
+      const date = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+      return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day ? date : null;
     }
 
     function safeLocalDate(year, month, day) {
@@ -626,6 +633,7 @@
       return {
         ...row,
         __driver: [cleanText(row.Nom_conducteur), cleanText(row.Prenom_conducteur)].filter(Boolean).join(' '),
+        Produit: language === 'en' ? (COST_TRANSLATIONS[cleanText(row.Produit)] || cleanText(row.Produit)) : cleanText(row.Produit),
         HT: parseAmount(row.HT), TVA: parseAmount(row.TVA), TTC: parseAmount(row.TTC),
         Date: parseDateOnly(row.Date), Date_debut: parseDateOnly(row.Date_debut), Date_fin: parseDateOnly(row.Date_fin)
       };
@@ -633,15 +641,15 @@
 
     function processDeductions() {
       invalidateResult();
-      if (!sourceRows.length) return setStatus(UI[language].noData, 'error');
+      if (!sourceRows.length) return setStatus(UI.nl.noData, 'error');
 
       const selected = [...document.querySelectorAll('.cost-check:checked')].map(cb => normalizedCost(cb.value));
-      if (!selected.length) return setStatus(UI[language].noSelection, 'error');
+      if (!selected.length) return setStatus(UI.nl.noSelection, 'error');
 
       const from = parseTypedDate(els.dateFrom.value);
       const to = parseTypedDate(els.dateTo.value);
-      if (!from || !to) return setStatus(UI[language].invalidPeriod, 'error');
-      if (from > to) return setStatus(UI[language].reversedPeriod, 'error');
+      if (!from || !to) return setStatus(UI.nl.invalidPeriod, 'error');
+      if (from > to) return setStatus(UI.nl.reversedPeriod, 'error');
 
       const selectedSet = new Set(selected);
       invalidDateCount = 0;
@@ -659,8 +667,8 @@
       const total = processedRows.reduce((sum, row) => sum + row.TTC, 0);
       els.summaryTotal.textContent = new Intl.NumberFormat(language === 'nl' ? 'nl-NL' : 'en-GB', { style: 'currency', currency: 'EUR' }).format(total);
 
-      const baseMessage = processedRows.length ? UI[language].processed : UI[language].noDeductions;
-      const dateWarning = invalidDateCount ? ` ${invalidDateCount} ${UI[language].invalidInvoiceDates}.` : '';
+      const baseMessage = processedRows.length ? UI.nl.processed : UI.nl.noDeductions;
+      const dateWarning = invalidDateCount ? ` ${invalidDateCount} ${UI.nl.invalidInvoiceDates}.` : '';
       setStatus(baseMessage + dateWarning, processedRows.length ? 'success' : '');
     }
 
@@ -693,8 +701,8 @@
       const header = worksheet.getRow(1);
       header.height = 28;
       header.eachCell(cell => {
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF123B63' } };
-        cell.font = { name: 'Century Gothic', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF213153' } };
+        cell.font = { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
         cell.alignment = { vertical: 'middle', horizontal: 'left' };
       });
 
@@ -702,7 +710,7 @@
         if (rowNumber === 1) return;
         row.height = 21;
         row.eachCell({ includeEmpty: true }, cell => {
-          cell.font = { name: 'Century Gothic', size: 10, color: { argb: 'FF17324D' } };
+          cell.font = { name: 'Arial', size: 10, color: { argb: 'FF17324D' } };
           cell.alignment = { vertical: 'middle', horizontal: 'left' };
           if (rowNumber % 2 === 1) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF4F7FA' } };
         });
@@ -733,7 +741,7 @@
       const fromPart = els.dateFrom.value.replace(/-/g, '');
       const toPart = els.dateTo.value.replace(/-/g, '');
       saveAs(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), `${UI[language].filePrefix}_${fromPart}_${toPart}.xlsx`);
-      setStatus(UI[language].exported, 'success');
+      setStatus(UI.nl.exported, 'success');
     }
 
     els.fileInput.addEventListener('change', event => {
