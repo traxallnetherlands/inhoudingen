@@ -1,1 +1,773 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TraXall Inhoudingen verwerken</title>
 
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/nl.js"></script>
+
+  <style>
+    :root {
+      --traxall-orange: #F59E0B;
+      --traxall-blue: #123B63;
+      --traxall-blue-2: #1F5A8A;
+      --traxall-light-blue: #EAF2F8;
+      --traxall-bg: #F4F7FA;
+      --white: #FFFFFF;
+      --text: #17324D;
+      --muted: #64748B;
+      --border: #D8E1EA;
+      --success: #16835B;
+      --danger: #B42318;
+      --shadow: 0 12px 34px rgba(18, 59, 99, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--traxall-bg);
+      color: var(--text);
+      font-family: "Century Gothic", CenturyGothic, Arial, sans-serif;
+    }
+
+    .topbar {
+      width: 100%;
+      min-height: 92px;
+      padding: 18px clamp(20px, 5vw, 70px);
+      background: var(--white);
+      border-bottom: 4px solid var(--traxall-orange);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      box-shadow: 0 4px 18px rgba(18, 59, 99, 0.08);
+    }
+
+    .brand { display: flex; align-items: center; gap: 24px; min-width: 0; }
+    .brand img { width: min(190px, 38vw); height: auto; object-fit: contain; }
+    .brand-divider { width: 1px; height: 44px; background: var(--border); }
+    .brand-copy h1 { margin: 0; color: var(--traxall-blue); font-size: clamp(20px, 2.3vw, 30px); }
+    .brand-copy p { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
+
+    .language-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 0 0 auto;
+      padding: 8px 10px 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #F9FBFD;
+    }
+
+    .language-label { font-size: 13px; font-weight: 700; color: var(--traxall-blue); }
+    .language-options { display: flex; gap: 6px; }
+
+    .flag-button {
+      border: 2px solid transparent;
+      border-radius: 8px;
+      background: var(--white);
+      padding: 5px 7px;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+    .flag-button:hover { transform: translateY(-1px); border-color: #B9C8D7; }
+    .flag-button.active { border-color: var(--traxall-orange); box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.18); }
+
+    main { width: min(1320px, calc(100% - 36px)); margin: 32px auto 46px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      min-height: 70px;
+      padding: 18px 24px;
+      background: linear-gradient(135deg, var(--traxall-blue), var(--traxall-blue-2));
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .card-header h2 { margin: 0; font-size: 18px; }
+    .step { color: #DCEAF5; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+    .card-body { padding: 24px; }
+
+    .upload-zone {
+      min-height: 205px;
+      border: 2px dashed #AFC1D2;
+      border-radius: 16px;
+      background: #F8FBFD;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 26px;
+      transition: 0.2s ease;
+      cursor: pointer;
+    }
+    .upload-zone:hover, .upload-zone.dragover { border-color: var(--traxall-orange); background: #FFF9EE; }
+    .upload-icon { width: 52px; height: 52px; margin-bottom: 12px; color: var(--traxall-blue); }
+    .upload-zone strong { color: var(--traxall-blue); font-size: 16px; }
+    .upload-zone span { margin-top: 7px; color: var(--muted); font-size: 13px; }
+    #fileInput { display: none; }
+
+    .file-info {
+      margin-top: 16px;
+      min-height: 48px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #F9FBFD;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .file-info.loaded { color: var(--success); border-color: #A7D7C6; background: #F0FAF6; }
+    .file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .period-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+    label.field-label { display: block; margin-bottom: 8px; color: var(--traxall-blue); font-size: 13px; font-weight: 700; }
+
+    .date-wrap { position: relative; }
+    .date-wrap input {
+      width: 100%;
+      height: 46px;
+      padding: 0 44px 0 13px;
+      border: 1px solid #BFCBD7;
+      border-radius: 10px;
+      color: var(--text);
+      background: var(--white);
+      font: inherit;
+      font-size: 14px;
+      outline: none;
+    }
+    .date-wrap input:focus { border-color: var(--traxall-orange); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.16); }
+    .calendar-icon { position: absolute; right: 13px; top: 50%; transform: translateY(-50%); color: var(--traxall-blue); pointer-events: none; }
+
+    .select-all-row {
+      margin-bottom: 15px;
+      padding: 10px 12px;
+      border: 1px solid #F8CA79;
+      border-radius: 11px;
+      background: #FFF8E8;
+    }
+
+    .check-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 16px;
+    }
+
+    .check-row { display: flex; align-items: flex-start; gap: 9px; min-height: 26px; font-size: 13px; cursor: pointer; }
+    .check-row input { margin: 2px 0 0; width: 17px; height: 17px; accent-color: var(--traxall-orange); flex: 0 0 auto; }
+    .check-row span { line-height: 1.4; }
+    .select-all-row .check-row { align-items: center; font-weight: 700; color: var(--traxall-blue); }
+
+    .actions-card { margin-top: 24px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 14px; }
+
+    .btn {
+      min-height: 48px;
+      padding: 0 20px;
+      border: 0;
+      border-radius: 11px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 7px 15px rgba(18, 59, 99, 0.16); }
+    .btn-primary { background: var(--traxall-orange); color: var(--traxall-blue); }
+    .btn-secondary { background: #107C41; color: var(--white); }
+    .btn:disabled { background: #D7DCE1; color: #8B949E; cursor: not-allowed; box-shadow: none; }
+    .btn svg { width: 21px; height: 21px; }
+
+    .status {
+      margin-top: 16px;
+      min-height: 48px;
+      padding: 13px 15px;
+      border-radius: 11px;
+      background: var(--traxall-light-blue);
+      color: var(--traxall-blue);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .status.success { background: #ECF8F3; color: var(--success); }
+    .status.error { background: #FFF0EF; color: var(--danger); }
+
+    .summary { margin-top: 16px; display: none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .summary.visible { display: grid; }
+    .summary-item { padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: #FAFCFE; }
+    .summary-item span { display: block; color: var(--muted); font-size: 11px; margin-bottom: 5px; }
+    .summary-item strong { color: var(--traxall-blue); font-size: 18px; }
+
+    .flatpickr-calendar { font-family: "Century Gothic", Arial, sans-serif; }
+    .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange { background: var(--traxall-orange); border-color: var(--traxall-orange); color: var(--traxall-blue); }
+
+    @media (max-width: 940px) {
+      .grid { grid-template-columns: 1fr; }
+      .topbar { align-items: flex-start; }
+      .brand-divider, .brand-copy p { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      .topbar { padding: 14px 18px; flex-direction: column; align-items: stretch; }
+      .language-box { align-self: flex-end; }
+      main { width: min(100% - 22px, 1320px); margin-top: 18px; }
+      .card-body { padding: 18px; }
+      .check-grid, .period-grid { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; }
+      .btn { width: 100%; }
+      .summary { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="logo-traxall.png" alt="TraXall logo">
+      <div class="brand-divider"></div>
+      <div class="brand-copy">
+        <h1 id="pageTitle">Inhoudingen verwerken</h1>
+        <p id="pageSubtitle">Selecteer factuurregels en exporteer een gebruiksklaar Excel-overzicht.</p>
+      </div>
+    </div>
+
+    <div class="language-box" aria-label="Taalkeuze">
+      <span class="language-label" id="languageLabel">Taal:</span>
+      <div class="language-options">
+        <button type="button" class="flag-button active" id="langNL" aria-label="Nederlands" title="Nederlands">🇳🇱</button>
+        <button type="button" class="flag-button" id="langEN" aria-label="English" title="English">🇬🇧</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section class="card">
+        <div class="card-header">
+          <h2 id="uploadHeading">Facturenoverzicht uploaden</h2>
+          <span class="step" id="step1">Stap 1</span>
+        </div>
+        <div class="card-body">
+          <label class="upload-zone" id="uploadZone" for="fileInput">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path d="M4 15.5A4.5 4.5 0 0 1 8.5 11h.3A6 6 0 1 1 19 15.3"></path>
+              <path d="M12 12v8m0-8-3 3m3-3 3 3"></path>
+            </svg>
+            <strong id="uploadMain">Klik om een Excel-bestand te kiezen</strong>
+            <span id="uploadSub">of sleep het facturenoverzicht naar dit vak</span>
+          </label>
+          <input type="file" id="fileInput" accept=".xlsx,.xls,.xlsm">
+
+          <div class="file-info" id="fileInfo">
+            <span class="file-name" id="fileName">Nog geen bestand geselecteerd</span>
+            <span id="rowCount"></span>
+          </div>
+
+          <div class="period-grid">
+            <div>
+              <label class="field-label" for="dateFrom" id="dateFromLabel">Factuurperiode vanaf</label>
+              <div class="date-wrap">
+                <input type="text" id="dateFrom" placeholder="dd-mm-jjjj" inputmode="numeric" autocomplete="off">
+                <svg class="calendar-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <label class="field-label" for="dateTo" id="dateToLabel">Factuurperiode t/m</label>
+              <div class="date-wrap">
+                <input type="text" id="dateTo" placeholder="dd-mm-jjjj" inputmode="numeric" autocomplete="off">
+                <svg class="calendar-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2 id="costHeading">Meenemen voor inhoudingen</h2>
+          <span class="step" id="step2">Stap 2</span>
+        </div>
+        <div class="card-body">
+          <div class="select-all-row">
+            <label class="check-row">
+              <input type="checkbox" id="selectAll">
+              <span id="selectAllText">Alles</span>
+            </label>
+          </div>
+          <div class="check-grid" id="costTypeList"></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card actions-card">
+      <div class="card-header">
+        <h2 id="processHeading">Verwerken en exporteren</h2>
+        <span class="step" id="step3">Stap 3</span>
+      </div>
+      <div class="card-body">
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="processBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+            <span id="processBtnText">Inhoudingen verwerken</span>
+          </button>
+          <button type="button" class="btn btn-secondary" id="exportBtn" disabled>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.5L13.5 2Zm.5 1.8L18.2 8H14V3.8ZM7 11h2.1l1.35 2.3L11.8 11H14l-2.4 3.7 2.55 4.3H12l-1.55-2.7L8.9 19H6.75l2.55-4.3L7 11Z"></path></svg>
+            <span id="exportBtnText">Exporteren naar Excel</span>
+          </button>
+        </div>
+
+        <div class="status" id="status" role="status" aria-live="polite">Upload een facturenoverzicht, kies de factuurperiode en selecteer minimaal één kostensoort.</div>
+
+        <div class="summary" id="summary">
+          <div class="summary-item"><span id="summarySourceLabel">Bronregels</span><strong id="summarySource">0</strong></div>
+          <div class="summary-item"><span id="summaryMatchedLabel">Gevonden inhoudingen</span><strong id="summaryMatched">0</strong></div>
+          <div class="summary-item"><span id="summaryTotalLabel">Totaal incl. BTW</span><strong id="summaryTotal">€ 0,00</strong></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    'use strict';
+
+    const COST_TYPES = [
+      'Administratiekosten Boete', 'Administratiekosten Tol', 'Bandenschade', 'Boetes',
+      'Diefstal', 'Doorbelaste Hulpverlening', 'Eigen risico', 'Herstel Laadpunt',
+      'Onderhoud doorbelast', 'Overige schadekosten', 'Parkeer kosten', 'Ruitschade',
+      'Schade', 'Schadeherstel Pool', 'Toll', 'Veerpont', 'Wassen'
+    ];
+
+    const SOURCE_HEADERS = [
+      'Produit', 'Immat', 'Prenom_conducteur', 'Nom_conducteur', 'Matricule_conducteur',
+      'Date', 'Date_debut', 'Date_fin', 'HT', 'TVA', 'TTC', 'Fournisseur',
+      'Centre_de_cout', 'Centre_de_cout_Libellé', 'Axe_2_Libellé', 'Numero_facture'
+    ];
+
+    const COLUMNS = {
+      nl: [
+        ['Fournisseur', 'Leverancier', 'text'], ['Produit', 'Kostensoort', 'text'],
+        ['Immat', 'Kenteken', 'text'], ['__driver', 'Berijdernaam', 'text'],
+        ['Matricule_conducteur', 'Personeelsnummer', 'text'], ['HT', 'Bedrag excl BTW', 'number'],
+        ['TVA', 'BTW', 'number'], ['TTC', 'Bedrag incl BTW', 'number'],
+        ['Date', 'Factuurdatum', 'date'], ['Numero_facture', 'Factuurnummer', 'text'],
+        ['Date_debut', 'Datum start', 'date'], ['Date_fin', 'Datum eind', 'date'],
+        ['Centre_de_cout', 'Code kostenplaats', 'text'], ['Centre_de_cout_Libellé', 'Kostenplaats', 'text'],
+        ['Axe_2_Libellé', 'Entiteit', 'text']
+      ],
+      en: [
+        ['Fournisseur', 'Supplier', 'text'], ['Produit', 'Cost type', 'text'],
+        ['Immat', 'Registration plate', 'text'], ['__driver', 'Driver name', 'text'],
+        ['Matricule_conducteur', 'Personell number', 'text'], ['HT', 'Amount excl VAT', 'number'],
+        ['TVA', 'VAT', 'number'], ['TTC', 'Amount incl VAT', 'number'],
+        ['Date', 'Invoice date', 'date'], ['Numero_facture', 'Invoice number', 'text'],
+        ['Date_debut', 'Date start', 'date'], ['Date_fin', 'Date end', 'date'],
+        ['Centre_de_cout', 'Code cost center', 'text'], ['Centre_de_cout_Libellé', 'Cost center', 'text'],
+        ['Axe_2_Libellé', 'Entity', 'text']
+      ]
+    };
+
+    const UI = {
+      nl: {
+        pageTitle: 'Inhoudingen verwerken', pageSubtitle: 'Selecteer factuurregels en exporteer een gebruiksklaar Excel-overzicht.',
+        languageLabel: 'Taal:', uploadHeading: 'Facturenoverzicht uploaden', step1: 'Stap 1', step2: 'Stap 2', step3: 'Stap 3',
+        uploadMain: 'Klik om een Excel-bestand te kiezen', uploadSub: 'of sleep het facturenoverzicht naar dit vak',
+        noFile: 'Nog geen bestand geselecteerd', rows: 'regels', dateFromLabel: 'Factuurperiode vanaf', dateToLabel: 'Factuurperiode t/m',
+        costHeading: 'Meenemen voor inhoudingen', selectAllText: 'Alles', processHeading: 'Verwerken en exporteren',
+        processBtnText: 'Inhoudingen verwerken', exportBtnText: 'Exporteren naar Excel',
+        initialStatus: 'Upload een facturenoverzicht, kies de factuurperiode en selecteer minimaal één kostensoort.',
+        summarySourceLabel: 'Bronregels', summaryMatchedLabel: 'Gevonden inhoudingen', summaryTotalLabel: 'Totaal incl. BTW',
+        invalidFile: 'Het bestand kon niet worden gelezen. Controleer of het een geldig Excel-bestand is.',
+        missingHeaders: 'Verplichte kolommen ontbreken:', noSelection: 'Selecteer minimaal één kostensoort.',
+        noData: 'Upload eerst een facturenoverzicht.', invalidPeriod: 'Voer twee geldige datums in als dd-mm-jjjj.',
+        reversedPeriod: 'De begindatum mag niet na de einddatum liggen.', processed: 'Verwerking voltooid. De Excel-export staat klaar.',
+        noDeductions: 'Geen inhoudingen gevonden binnen de gekozen periode en kostensoorten.', exported: 'Het Excel-bestand is geëxporteerd.',
+        noDeductionsCell: 'Geen inhoudingen', sheetName: 'Inhoudingen', filePrefix: 'Inhoudingen',
+        invalidInvoiceDates: 'regels overgeslagen omdat de factuurdatum leeg of ongeldig is'
+      },
+      en: {
+        pageTitle: 'Process deductions', pageSubtitle: 'Select invoice lines and export a ready-to-use Excel overview.',
+        languageLabel: 'Language:', uploadHeading: 'Upload invoice overview', step1: 'Step 1', step2: 'Step 2', step3: 'Step 3',
+        uploadMain: 'Click to select an Excel file', uploadSub: 'or drag the invoice overview into this area',
+        noFile: 'No file selected', rows: 'rows', dateFromLabel: 'Invoice period from', dateToLabel: 'Invoice period through',
+        costHeading: 'Include for deductions', selectAllText: 'All', processHeading: 'Process and export',
+        processBtnText: 'Process deductions', exportBtnText: 'Export to Excel',
+        initialStatus: 'Upload an invoice overview, choose the invoice period and select at least one cost type.',
+        summarySourceLabel: 'Source rows', summaryMatchedLabel: 'Deductions found', summaryTotalLabel: 'Total incl. VAT',
+        invalidFile: 'The file could not be read. Check whether it is a valid Excel file.',
+        missingHeaders: 'Required columns are missing:', noSelection: 'Select at least one cost type.',
+        noData: 'Upload an invoice overview first.', invalidPeriod: 'Enter two valid dates as dd-mm-yyyy.',
+        reversedPeriod: 'The start date cannot be after the end date.', processed: 'Processing completed. The Excel export is ready.',
+        noDeductions: 'No deductions were found within the selected period and cost types.', exported: 'The Excel file has been exported.',
+        noDeductionsCell: 'No deductions', sheetName: 'Deductions', filePrefix: 'Deductions',
+        invalidInvoiceDates: 'rows skipped because the invoice date is empty or invalid'
+      }
+    };
+
+    let language = 'nl';
+    let sourceRows = [];
+    let processedRows = [];
+    let invalidDateCount = 0;
+    let hasProcessed = false;
+
+    const els = Object.fromEntries([
+      'fileInput','uploadZone','fileInfo','fileName','rowCount','dateFrom','dateTo','costTypeList','selectAll',
+      'processBtn','exportBtn','status','summary','summarySource','summaryMatched','summaryTotal','langNL','langEN'
+    ].map(id => [id, document.getElementById(id)]));
+
+    const fpOptions = {
+      dateFormat: 'd-m-Y',
+      defaultDate: new Date(),
+      allowInput: true,
+      locale: flatpickr.l10ns.nl,
+      disableMobile: true
+    };
+    const dateFromPicker = flatpickr(els.dateFrom, fpOptions);
+    const dateToPicker = flatpickr(els.dateTo, fpOptions);
+
+    function renderCostTypes() {
+      els.costTypeList.innerHTML = COST_TYPES.map((name, index) => `
+        <label class="check-row" for="cost-${index}">
+          <input type="checkbox" class="cost-check" id="cost-${index}" value="${escapeHtml(name)}">
+          <span>${escapeHtml(name)}</span>
+        </label>`).join('');
+
+      document.querySelectorAll('.cost-check').forEach(cb => cb.addEventListener('change', () => {
+        const checks = [...document.querySelectorAll('.cost-check')];
+        els.selectAll.checked = checks.every(item => item.checked);
+        els.selectAll.indeterminate = checks.some(item => item.checked) && !checks.every(item => item.checked);
+        invalidateResult();
+      }));
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    }
+
+    function applyLanguage(nextLanguage) {
+      language = nextLanguage;
+      document.documentElement.lang = language;
+      els.langNL.classList.toggle('active', language === 'nl');
+      els.langEN.classList.toggle('active', language === 'en');
+      els.langNL.setAttribute('aria-pressed', String(language === 'nl'));
+      els.langEN.setAttribute('aria-pressed', String(language === 'en'));
+
+      const text = UI[language];
+      Object.entries(text).forEach(([id, value]) => {
+        const node = document.getElementById(id);
+        if (node) node.textContent = value;
+      });
+
+      if (!sourceRows.length) els.fileName.textContent = text.noFile;
+      if (!hasProcessed) setStatus(text.initialStatus, '');
+      dateFromPicker.set('locale', language === 'nl' ? flatpickr.l10ns.nl : 'default');
+      dateToPicker.set('locale', language === 'nl' ? flatpickr.l10ns.nl : 'default');
+    }
+
+    function setStatus(message, type = '') {
+      els.status.textContent = message;
+      els.status.className = `status${type ? ` ${type}` : ''}`;
+    }
+
+    function invalidateResult() {
+      hasProcessed = false;
+      processedRows = [];
+      els.exportBtn.disabled = true;
+      els.summary.classList.remove('visible');
+    }
+
+    function normalizeHeader(value) {
+      return String(value ?? '').trim().replace(/\u00A0/g, ' ').normalize('NFC');
+    }
+
+    function findHeaderRow(matrix) {
+      const maxRows = Math.min(matrix.length, 50);
+      for (let i = 0; i < maxRows; i++) {
+        const headers = (matrix[i] || []).map(normalizeHeader);
+        if (headers.includes('Produit') && headers.includes('Immat') && headers.includes('Date')) return i;
+      }
+      return -1;
+    }
+
+    function rowsFromMatrix(matrix, headerIndex) {
+      const headers = matrix[headerIndex].map(normalizeHeader);
+      return matrix.slice(headerIndex + 1)
+        .filter(row => row.some(value => value !== null && value !== undefined && String(value).trim() !== ''))
+        .map(row => Object.fromEntries(headers.map((header, index) => [header, row[index] ?? ''])));
+    }
+
+    async function handleFile(file) {
+      invalidateResult();
+      try {
+        const buffer = await file.arrayBuffer();
+        const workbook = XLSX.read(buffer, { type: 'array', cellDates: false, raw: true });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const matrix = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '', raw: true });
+        const headerIndex = findHeaderRow(matrix);
+
+        if (headerIndex < 0) throw new Error('HEADER_NOT_FOUND');
+        const foundHeaders = matrix[headerIndex].map(normalizeHeader);
+        const missing = SOURCE_HEADERS.filter(header => !foundHeaders.includes(header));
+        if (missing.length) {
+          sourceRows = [];
+          els.fileInfo.classList.remove('loaded');
+          els.fileName.textContent = file.name;
+          els.rowCount.textContent = '';
+          setStatus(`${UI[language].missingHeaders} ${missing.join(', ')}`, 'error');
+          return;
+        }
+
+        sourceRows = rowsFromMatrix(matrix, headerIndex);
+        els.fileInfo.classList.add('loaded');
+        els.fileName.textContent = file.name;
+        els.rowCount.textContent = `${sourceRows.length.toLocaleString(language === 'nl' ? 'nl-NL' : 'en-GB')} ${UI[language].rows}`;
+        setStatus(UI[language].initialStatus, '');
+      } catch (error) {
+        console.error(error);
+        sourceRows = [];
+        els.fileInfo.classList.remove('loaded');
+        els.fileName.textContent = file.name || UI[language].noFile;
+        els.rowCount.textContent = '';
+        setStatus(error.message === 'HEADER_NOT_FOUND' ? `${UI[language].missingHeaders} Produit, Immat, Date` : UI[language].invalidFile, 'error');
+      }
+    }
+
+    function parseDateOnly(value) {
+      if (value === null || value === undefined || value === '') return null;
+      if (value instanceof Date && !Number.isNaN(value.getTime())) return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        const parts = XLSX.SSF.parse_date_code(value);
+        if (!parts) return null;
+        return new Date(parts.y, parts.m - 1, parts.d);
+      }
+
+      const text = String(value).trim();
+      let match = text.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
+      if (match) return safeLocalDate(+match[3], +match[2], +match[1]);
+      match = text.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?:[ T].*)?$/);
+      if (match) return safeLocalDate(+match[1], +match[2], +match[3]);
+
+      const parsed = new Date(text);
+      return Number.isNaN(parsed.getTime()) ? null : new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+    }
+
+    function safeLocalDate(year, month, day) {
+      const date = new Date(year, month - 1, day);
+      return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day ? date : null;
+    }
+
+    function parseTypedDate(value) {
+      const match = String(value).trim().match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+      return match ? safeLocalDate(+match[3], +match[2], +match[1]) : null;
+    }
+
+    function parseAmount(value) {
+      if (typeof value === 'number' && Number.isFinite(value)) return value;
+      if (value === null || value === undefined || value === '') return 0;
+      let text = String(value).trim().replace(/\s/g, '').replace(/[€£$]/g, '');
+      if (text.includes(',') && text.includes('.')) {
+        text = text.lastIndexOf(',') > text.lastIndexOf('.') ? text.replace(/\./g, '').replace(',', '.') : text.replace(/,/g, '');
+      } else if (text.includes(',')) {
+        text = text.replace(/\./g, '').replace(',', '.');
+      }
+      const result = Number(text);
+      return Number.isFinite(result) ? result : 0;
+    }
+
+    function cleanText(value) {
+      if (value === null || value === undefined) return '';
+      return String(value).trim();
+    }
+
+    function normalizedCost(value) {
+      return cleanText(value).replace(/\s+/g, ' ').toLocaleLowerCase('nl-NL');
+    }
+
+    function buildOutputRow(row) {
+      return {
+        ...row,
+        __driver: [cleanText(row.Nom_conducteur), cleanText(row.Prenom_conducteur)].filter(Boolean).join(' '),
+        HT: parseAmount(row.HT), TVA: parseAmount(row.TVA), TTC: parseAmount(row.TTC),
+        Date: parseDateOnly(row.Date), Date_debut: parseDateOnly(row.Date_debut), Date_fin: parseDateOnly(row.Date_fin)
+      };
+    }
+
+    function processDeductions() {
+      invalidateResult();
+      if (!sourceRows.length) return setStatus(UI[language].noData, 'error');
+
+      const selected = [...document.querySelectorAll('.cost-check:checked')].map(cb => normalizedCost(cb.value));
+      if (!selected.length) return setStatus(UI[language].noSelection, 'error');
+
+      const from = parseTypedDate(els.dateFrom.value);
+      const to = parseTypedDate(els.dateTo.value);
+      if (!from || !to) return setStatus(UI[language].invalidPeriod, 'error');
+      if (from > to) return setStatus(UI[language].reversedPeriod, 'error');
+
+      const selectedSet = new Set(selected);
+      invalidDateCount = 0;
+      processedRows = sourceRows.filter(row => {
+        const invoiceDate = parseDateOnly(row.Date);
+        if (!invoiceDate) { invalidDateCount++; return false; }
+        return selectedSet.has(normalizedCost(row.Produit)) && invoiceDate >= from && invoiceDate <= to;
+      }).map(buildOutputRow);
+
+      hasProcessed = true;
+      els.exportBtn.disabled = false;
+      els.summary.classList.add('visible');
+      els.summarySource.textContent = sourceRows.length.toLocaleString(language === 'nl' ? 'nl-NL' : 'en-GB');
+      els.summaryMatched.textContent = processedRows.length.toLocaleString(language === 'nl' ? 'nl-NL' : 'en-GB');
+      const total = processedRows.reduce((sum, row) => sum + row.TTC, 0);
+      els.summaryTotal.textContent = new Intl.NumberFormat(language === 'nl' ? 'nl-NL' : 'en-GB', { style: 'currency', currency: 'EUR' }).format(total);
+
+      const baseMessage = processedRows.length ? UI[language].processed : UI[language].noDeductions;
+      const dateWarning = invalidDateCount ? ` ${invalidDateCount} ${UI[language].invalidInvoiceDates}.` : '';
+      setStatus(baseMessage + dateWarning, processedRows.length ? 'success' : '');
+    }
+
+    async function exportToExcel() {
+      if (!hasProcessed) return;
+
+      const workbook = new ExcelJS.Workbook();
+      workbook.creator = 'TraXall';
+      workbook.created = new Date();
+      const worksheet = workbook.addWorksheet(UI[language].sheetName, {
+        views: [{ state: 'frozen', ySplit: 1, showGridLines: false }]
+      });
+
+      const columns = COLUMNS[language];
+      worksheet.columns = columns.map(([key, header, type]) => ({
+        key, header,
+        width: type === 'text' ? Math.min(34, Math.max(14, header.length + 4)) : type === 'date' ? 15 : 17
+      }));
+
+      const rowsToWrite = processedRows.length ? processedRows : [{ Fournisseur: UI[language].noDeductionsCell }];
+      rowsToWrite.forEach(source => {
+        const output = {};
+        columns.forEach(([key, , type]) => {
+          const value = source[key];
+          output[key] = type === 'text' ? cleanText(value) : (value ?? null);
+        });
+        worksheet.addRow(output);
+      });
+
+      const header = worksheet.getRow(1);
+      header.height = 28;
+      header.eachCell(cell => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF123B63' } };
+        cell.font = { name: 'Century Gothic', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.alignment = { vertical: 'middle', horizontal: 'left' };
+      });
+
+      worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return;
+        row.height = 21;
+        row.eachCell({ includeEmpty: true }, cell => {
+          cell.font = { name: 'Century Gothic', size: 10, color: { argb: 'FF17324D' } };
+          cell.alignment = { vertical: 'middle', horizontal: 'left' };
+          if (rowNumber % 2 === 1) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF4F7FA' } };
+        });
+      });
+
+      columns.forEach(([, , type], index) => {
+        const column = worksheet.getColumn(index + 1);
+        if (type === 'number') {
+          column.numFmt = '#,##0.00;[Red]-#,##0.00';
+          column.alignment = { vertical: 'middle', horizontal: 'right' };
+        } else if (type === 'date') {
+          column.numFmt = 'dd-mm-yyyy';
+          column.alignment = { vertical: 'middle', horizontal: 'center' };
+        } else {
+          column.numFmt = '@';
+        }
+      });
+
+      worksheet.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: columns.length } };
+      worksheet.getRow(1).eachCell(cell => { cell.alignment = { vertical: 'middle', horizontal: 'left' }; });
+
+      const borderColor = { argb: 'FFD8E1EA' };
+      worksheet.eachRow(row => row.eachCell({ includeEmpty: true }, cell => {
+        cell.border = { bottom: { style: 'hair', color: borderColor } };
+      }));
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const fromPart = els.dateFrom.value.replace(/-/g, '');
+      const toPart = els.dateTo.value.replace(/-/g, '');
+      saveAs(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), `${UI[language].filePrefix}_${fromPart}_${toPart}.xlsx`);
+      setStatus(UI[language].exported, 'success');
+    }
+
+    els.fileInput.addEventListener('change', event => {
+      const file = event.target.files[0];
+      if (file) handleFile(file);
+    });
+
+    ['dragenter', 'dragover'].forEach(name => els.uploadZone.addEventListener(name, event => {
+      event.preventDefault();
+      els.uploadZone.classList.add('dragover');
+    }));
+    ['dragleave', 'drop'].forEach(name => els.uploadZone.addEventListener(name, event => {
+      event.preventDefault();
+      els.uploadZone.classList.remove('dragover');
+    }));
+    els.uploadZone.addEventListener('drop', event => {
+      const file = event.dataTransfer.files[0];
+      if (file) handleFile(file);
+    });
+
+    els.selectAll.addEventListener('change', () => {
+      document.querySelectorAll('.cost-check').forEach(cb => { cb.checked = els.selectAll.checked; });
+      els.selectAll.indeterminate = false;
+      invalidateResult();
+    });
+    els.dateFrom.addEventListener('change', invalidateResult);
+    els.dateTo.addEventListener('change', invalidateResult);
+    els.langNL.addEventListener('click', () => applyLanguage('nl'));
+    els.langEN.addEventListener('click', () => applyLanguage('en'));
+    els.processBtn.addEventListener('click', processDeductions);
+    els.exportBtn.addEventListener('click', exportToExcel);
+
+    renderCostTypes();
+    applyLanguage('nl');
+  </script>
+</body>
+</html>
