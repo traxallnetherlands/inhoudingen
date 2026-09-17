@@ -1,37 +1,984 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="nl">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TraXall Inhoudingen</title>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script><script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/nl.js"></script>
-<style>
-:root{--blue:#213153;--blue2:#18243d;--orange:#f59e0b;--green:#16875d;--line:#cad6e3;--soft:#f7f9fc;--text:#10264a}*{box-sizing:border-box}body{margin:0;background:var(--blue);font-family:Arial,sans-serif;color:var(--text)}.wrap{width:min(1400px,calc(100% - 40px));margin:12px auto 28px}.top,.card{background:#fff;border-radius:10px;box-shadow:2px 2px 10px #0003}.top{height:135px;display:flex;align-items:center;padding:25px 40px;margin-bottom:20px}.top img{width:180px;height:auto}.divider{height:45px;width:1px;background:#d8e0e9;margin:0 25px}.top h1{font-size:30px;margin:0;color:var(--blue)}.layout{display:grid;grid-template-columns:1.08fr .98fr;gap:24px}.card{overflow:hidden}.head{height:55px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);font-size:18px;font-weight:700}.body{padding:18px 20px}.upload{height:58px;border:2px solid #b7c8da;border-radius:10px;background:var(--soft);display:flex;align-items:center;padding:0 18px;gap:12px;font-weight:700;cursor:pointer}.upload:hover{border-color:var(--orange)}#file{display:none}.fileinfo{height:40px;margin-top:10px;padding:0 12px;border:1px solid #d8e2ec;border-radius:10px;background:var(--soft);display:flex;align-items:center;justify-content:space-between;color:#58708f;font-size:12px}.dates{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}.field label{display:block;font-size:12px;margin-bottom:7px}.field input{width:100%;height:42px;border:1px solid #b7c8da;border-radius:10px;padding:0 12px;color:var(--text)}.checks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(6,42px);grid-auto-flow:column;gap:9px 10px}.checkbox-card{min-width:0;border:1px solid #b7c8da;border-radius:9px;background:var(--soft);padding:0 10px;display:flex;align-items:center}.checkbox-card.all{border-color:#f1bd62;background:#fff7e7}.checkbox-card label{width:100%;display:flex;align-items:center;gap:8px;font-size:11px;line-height:1.15;cursor:pointer}.checkbox-card input{width:16px;height:16px;margin:0;accent-color:var(--orange);flex:none}.bottom{margin-top:18px}.actions{display:flex;align-items:center;gap:13px;flex-wrap:wrap}.lang{height:48px;border:1px solid var(--line);border-radius:10px;background:var(--soft);display:flex;align-items:center;gap:8px;padding:4px 8px 4px 12px;font-size:12px;font-weight:700}.lang button{height:36px;min-width:57px;border:2px solid transparent;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;gap:5px;font-weight:700;color:var(--blue);cursor:pointer}.lang button.active{border-color:var(--orange)}.flag{font-size:18px}.btn{height:48px;border:0;border-radius:10px;padding:0 20px;font-weight:700;cursor:pointer}.process{background:var(--orange);color:var(--blue)}.export{background:var(--green);color:#fff}.btn:disabled{background:#d7dce2;color:#8d98a5;cursor:not-allowed}.status{margin-top:14px;padding:11px 13px;border-radius:9px;background:#eef3f8;font-size:12px}.status.err{background:#fff0ef;color:#a2261d}.status.ok{background:#edf8f3;color:#08734c}.stats{display:none;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.stats.show{display:grid}.stat{border:1px solid var(--line);border-radius:10px;padding:11px;background:var(--soft)}.stat small{display:block;color:#59708e}.stat strong{display:block;margin-top:6px;font-size:18px}.results{display:none;margin-top:16px;border:1px solid var(--line);border-radius:10px;overflow:hidden}.results.show{display:block}.resulthead{height:46px;padding:0 13px;display:flex;align-items:center;justify-content:space-between;background:var(--soft);border-bottom:1px solid var(--line)}.resulthead h3{font-size:15px;margin:0}.scroll{max-height:430px;overflow:auto}table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-size:11px}th{position:sticky;top:0;z-index:2;background:var(--blue);color:#fff;text-align:left;padding:10px;white-space:nowrap}td{padding:9px 10px;border-bottom:1px solid #e3e9ef;white-space:nowrap}tbody tr:nth-child(even) td{background:var(--soft)}td.num{text-align:right}td.date{text-align:center}@media(max-width:950px){.layout{grid-template-columns:1fr}.top{height:auto}.checks{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(9,42px)}}@media(max-width:620px){.wrap{width:calc(100% - 20px)}.top{padding:20px}.divider{display:none}.top h1{font-size:22px;margin-left:18px}.checks{grid-template-columns:1fr;grid-template-rows:none;grid-auto-flow:row}.dates{grid-template-columns:1fr}.actions>*{width:100%}.lang{justify-content:center}.stats{grid-template-columns:1fr}}
-</style></head>
-<body><div class="wrap"><header class="top"><img src="logo-traxall.png" alt="TraXall"><div class="divider"></div><h1>Inhoudingen</h1></header>
-<div class="layout"><section class="card"><div class="head"><span>Facturenoverzicht uploaden</span><span>Stap 1</span></div><div class="body"><label class="upload" for="file">☁︎ &nbsp; Facturenoverzicht selecteren</label><input id="file" type="file" accept=".xlsx,.xls,.xlsm"><div class="fileinfo"><span id="filename">Nog geen bestand geselecteerd</span><span id="rowcount"></span></div><div class="dates"><div class="field"><label>Factuurperiode vanaf</label><input id="from" placeholder="dd-mm-jjjj"></div><div class="field"><label>Factuurperiode t/m</label><input id="to" placeholder="dd-mm-jjjj"></div></div></div></section>
-<section class="card"><div class="head"><span>Meenemen voor inhoudingen</span><span>Stap 2</span></div><div class="body"><div class="checks" id="checks"><div class="checkbox-card all"><label><input id="all" type="checkbox">Alles</label></div></div></div></section></div>
-<section class="card bottom"><div class="head"><span>Verwerken en exporteren</span><span>Stap 3</span></div><div class="body"><div class="actions"><div class="lang"><span>Taal Inhoudingenfile:</span><button id="nl" class="active"><span class="flag">🇳🇱</span>NL</button><button id="en"><span class="flag">🇬🇧</span>ENG</button></div><button id="process" class="btn process">✓ &nbsp; Inhoudingen verwerken</button><button id="export" class="btn export" disabled>▣ &nbsp; Exporteren naar Excel</button></div><div id="status" class="status">Upload een facturenoverzicht, kies de factuurperiode en selecteer minimaal één kostensoort.</div><div id="stats" class="stats"><div class="stat"><small>Bronregels</small><strong id="sourceCount">0</strong></div><div class="stat"><small>Gevonden inhoudingen</small><strong id="foundCount">0</strong></div><div class="stat"><small>Totaal incl. BTW</small><strong id="total">€ 0,00</strong></div></div><div id="results" class="results"><div class="resulthead"><h3>Resultaten</h3><span id="resultCount">0 regels</span></div><div class="scroll"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div></div></div></section></div>
-<script>
-'use strict';
-const costs=['Administratiekosten Boete','Administratiekosten Tol','Bandenschade','Boetes','Diefstal','Doorbelaste Hulpverlening','Eigen risico','Herstel Laadpunt','Onderhoud doorbelast','Overige schadekosten','Parkeer kosten','Ruitschade','Schade','Schadeherstel Pool','Toll','Veerpont','Wassen'];
-const translations={'Administratiekosten Boete':'Fine administration costs','Administratiekosten Tol':'Toll administration costs','Bandenschade':'Tyre damage','Boetes':'Fines','Diefstal':'Theft','Doorbelaste Hulpverlening':'Recharged roadside assistance','Eigen risico':'Deductible','Herstel Laadpunt':'Charging point repair','Onderhoud doorbelast':'Recharged maintenance','Overige schadekosten':'Other damage costs','Parkeer kosten':'Parking costs','Ruitschade':'Glass damage','Schade':'Damage','Schadeherstel Pool':'Pool damage repair','Toll':'Toll','Veerpont':'Ferry','Wassen':'Car wash'};
-const required=['Produit','Immat','Prenom_conducteur','Nom_conducteur','Matricule_conducteur','Date','Date_debut','Date_fin','HT','TVA','TTC','Fournisseur','Centre_de_cout','Centre_de_cout_Libellé','Axe_2_Libellé','Numero_facture'];
-const cols={nl:[['Fournisseur','Leverancier','text'],['Produit','Kostensoort','text'],['Immat','Kenteken','text'],['_driver','Berijdernaam','text'],['Matricule_conducteur','Personeelsnummer','text'],['HT','Bedrag excl BTW','number'],['TVA','BTW','number'],['TTC','Bedrag incl BTW','number'],['Date','Factuurdatum','date'],['Numero_facture','Factuurnummer','text'],['Date_debut','Datum start','date'],['Date_fin','Datum eind','date'],['Centre_de_cout','Code kostenplaats','text'],['Centre_de_cout_Libellé','Kostenplaats','text'],['Axe_2_Libellé','Entiteit','text']],en:[['Fournisseur','Supplier','text'],['Produit','Cost type','text'],['Immat','Registration plate','text'],['_driver','Driver name','text'],['Matricule_conducteur','Personell number','text'],['HT','Amount excl VAT','number'],['TVA','VAT','number'],['TTC','Amount incl VAT','number'],['Date','Invoice date','date'],['Numero_facture','Invoice number','text'],['Date_debut','Date start','date'],['Date_fin','Date end','date'],['Centre_de_cout','Code cost center','text'],['Centre_de_cout_Libellé','Cost center','text'],['Axe_2_Libellé','Entity','text']]};
-const $=id=>document.getElementById(id);let source=[],output=[],lang='nl',ready=false;flatpickr('#from',{dateFormat:'d-m-Y',defaultDate:new Date(),allowInput:true,locale:'nl'});flatpickr('#to',{dateFormat:'d-m-Y',defaultDate:new Date(),allowInput:true,locale:'nl'});
-$('checks').insertAdjacentHTML('beforeend',costs.map((x,i)=>`<div class="checkbox-card"><label><input type="checkbox" class="cost" value="${x}" id="c${i}"><span>${x}</span></label></div>`).join(''));
-function invalidate(){ready=false;$('export').disabled=true;$('results').classList.remove('show');$('stats').classList.remove('show')}
-$('all').onchange=()=>{document.querySelectorAll('.cost').forEach(x=>x.checked=$('all').checked);invalidate()};document.querySelectorAll('.cost').forEach(x=>x.onchange=()=>{const a=[...document.querySelectorAll('.cost')];$('all').checked=a.every(y=>y.checked);$('all').indeterminate=a.some(y=>y.checked)&&!a.every(y=>y.checked);invalidate()});
-function choose(l){lang=l;$('nl').classList.toggle('active',l==='nl');$('en').classList.toggle('active',l==='en');invalidate();message('De taalkeuze geldt voor de inhoudingenfile en de resultaatweergave. Klik opnieuw op Inhoudingen verwerken.','')}$('nl').onclick=()=>choose('nl');$('en').onclick=()=>choose('en');
-function message(t,c){$('status').textContent=t;$('status').className='status'+(c?' '+c:'')};function txt(v){return v==null?'':String(v).trim()};function norm(v){return txt(v).replace(/\s+/g,' ').toLowerCase()}
-$('file').onchange=async e=>{invalidate();const f=e.target.files[0];if(!f)return;try{const wb=XLSX.read(await f.arrayBuffer(),{type:'array',raw:true});let matrix,headers,hi=-1;for(const sn of wb.SheetNames){const m=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:'',raw:true});const n=m.findIndex((r,i)=>i<50&&r.map(txt).includes('Produit')&&r.map(txt).includes('Date'));if(n>=0){matrix=m;hi=n;break}}if(hi<0)throw Error('Geen geldige kopregel gevonden.');headers=matrix[hi].map(txt);const missing=required.filter(x=>!headers.includes(x));if(missing.length)throw Error('Ontbrekende kolommen: '+missing.join(', '));source=matrix.slice(hi+1).filter(r=>r.some(v=>txt(v))).map(r=>Object.fromEntries(headers.map((h,i)=>[h,r[i]??''])));$('filename').textContent=f.name;$('rowcount').textContent=source.length+' regels';message('Bestand geladen. Kies de periode en kostensoorten.','ok')}catch(err){source=[];message(err.message||'Bestand kon niet worden gelezen.','err')}};
-/* DATUMLOGICA BEWUST ONGEWIJZIGD: Excel-seriedatums worden als UTC-datum op 12:00 opgebouwd om dagverschuiving te voorkomen. */
-function dateValue(v){if(v==null||v==='')return null;if(v instanceof Date&&!isNaN(v))return new Date(Date.UTC(v.getUTCFullYear(),v.getUTCMonth(),v.getUTCDate(),12));if(typeof v==='number'){const p=XLSX.SSF.parse_date_code(v);return p?new Date(Date.UTC(p.y,p.m-1,p.d,12)):null}let s=txt(v),m=s.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);if(m)return utc(+m[3],+m[2],+m[1]);m=s.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);return m?utc(+m[1],+m[2],+m[3]):null}function utc(y,m,d){const x=new Date(Date.UTC(y,m-1,d,12));return x.getUTCFullYear()===y&&x.getUTCMonth()===m-1&&x.getUTCDate()===d?x:null}function typed(s){const m=txt(s).match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);return m?utc(+m[3],+m[2],+m[1]):null}function amount(v){if(typeof v==='number')return v;let s=txt(v).replace(/\s|€|£|\$/g,'');if(s.includes(',')&&s.includes('.'))s=s.lastIndexOf(',')>s.lastIndexOf('.')?s.replace(/\./g,'').replace(',','.'):s.replace(/,/g,'');else if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');return Number(s)||0}function fdate(d){return d?`${String(d.getUTCDate()).padStart(2,'0')}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${d.getUTCFullYear()}`:''}function fnum(n){return new Intl.NumberFormat(lang==='nl'?'nl-NL':'en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n||0)}
-$('process').onclick=()=>{invalidate();if(!source.length)return message('Upload eerst een facturenoverzicht.','err');const selected=new Set([...document.querySelectorAll('.cost:checked')].map(x=>norm(x.value)));if(!selected.size)return message('Selecteer minimaal één kostensoort.','err');const from=typed($('from').value),to=typed($('to').value);if(!from||!to)return message('Voer twee geldige datums in als dd-mm-jjjj.','err');if(from>to)return message('De begindatum mag niet na de einddatum liggen.','err');output=source.filter(r=>{const d=dateValue(r.Date);return d&&d>=from&&d<=to&&selected.has(norm(r.Produit))}).map(r=>({...r,_driver:[txt(r.Nom_conducteur),txt(r.Prenom_conducteur)].filter(Boolean).join(' '),Produit:lang==='en'?(translations[txt(r.Produit)]||txt(r.Produit)):txt(r.Produit),Date:dateValue(r.Date),Date_debut:dateValue(r.Date_debut),Date_fin:dateValue(r.Date_fin),HT:amount(r.HT),TVA:amount(r.TVA),TTC:amount(r.TTC)}));ready=true;$('export').disabled=false;$('sourceCount').textContent=source.length;$('foundCount').textContent=output.length;$('total').textContent=new Intl.NumberFormat('nl-NL',{style:'currency',currency:'EUR'}).format(output.reduce((a,r)=>a+r.TTC,0));$('stats').classList.add('show');render();message(output.length?'Verwerking voltooid. De Excel-export staat klaar.':'Geen inhoudingen gevonden binnen de gekozen selectie.','ok')};
-function render(){const c=cols[lang],rows=output.length?output:[{Fournisseur:lang==='nl'?'Geen inhoudingen':'No deductions'}];$('thead').innerHTML='<tr>'+c.map(x=>`<th>${x[1]}</th>`).join('')+'</tr>';$('tbody').innerHTML=rows.map(r=>'<tr>'+c.map(([k,h,t])=>`<td class="${t==='number'?'num':t}">${t==='date'?fdate(r[k]):t==='number'?fnum(r[k]):txt(r[k])}</td>`).join('')+'</tr>').join('');$('resultCount').textContent=output.length+' '+(output.length===1?'regel':'regels');$('results').classList.add('show')}
-$('export').onclick=async()=>{if(!ready)return;const wb=new ExcelJS.Workbook(),ws=wb.addWorksheet(lang==='nl'?'Inhoudingen':'Deductions',{views:[{state:'frozen',ySplit:1,showGridLines:false}]});const c=cols[lang];ws.columns=c.map(([key,header,type])=>({key,header,width:type==='text'?Math.min(34,Math.max(14,header.length+4)):type==='date'?15:17}));const rows=output.length?output:[{Fournisseur:lang==='nl'?'Geen inhoudingen':'No deductions'}];rows.forEach(r=>{const x={};c.forEach(([k,h,t])=>x[k]=t==='text'?txt(r[k]):r[k]??null);ws.addRow(x)});ws.getRow(1).height=28;ws.getRow(1).eachCell(cell=>{cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF213153'}};cell.font={name:'Arial',size:10,bold:true,color:{argb:'FFFFFFFF'}};cell.alignment={vertical:'middle',horizontal:'left'}});ws.eachRow((r,n)=>{if(n===1)return;r.height=21;r.eachCell({includeEmpty:true},cell=>{cell.font={name:'Arial',size:10,color:{argb:'FF10264A'}};if(n%2)cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFF7F9FC'}}})});c.forEach(([,h,t],i)=>{const col=ws.getColumn(i+1);if(t==='number'){col.numFmt='#,##0.00;[Red]-#,##0.00';col.alignment={horizontal:'right'}}else if(t==='date'){col.numFmt='dd-mm-yyyy';col.alignment={horizontal:'center'}}else col.numFmt='@'});ws.autoFilter={from:{row:1,column:1},to:{row:1,column:c.length}};const b=await wb.xlsx.writeBuffer();saveAs(new Blob([b],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),(lang==='nl'?'Inhoudingen_':'Deductions_')+$('from').value.replaceAll('-','')+'_'+$('to').value.replaceAll('-','')+'.xlsx')};
-['from','to'].forEach(id=>$(id).addEventListener('change',invalidate));
-</script></body></html>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TraXall Inhoudingen</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/nl.js"></script>
+
+  <style>
+    :root {
+      --traxall-orange: #f59e0b;
+      --traxall-blue: #213153;
+      --traxall-blue-2: #18243d;
+      --traxall-light-blue: #edf2f8;
+      --traxall-bg: #213153;
+      --white: #FFFFFF;
+      --text: #17324D;
+      --muted: #64748B;
+      --border: #D8E1EA;
+      --success: #16835B;
+      --danger: #B42318;
+      --shadow: 0 12px 34px rgba(18, 59, 99, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--traxall-bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+    }
+
+    .topbar {
+      width: 100%;
+      min-height: 92px;
+      padding: 18px clamp(20px, 5vw, 70px);
+      background: var(--white);
+      border-bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      border-radius: 10px;
+      box-shadow: 2px 2px 10px #0003;
+    }
+
+    .brand { display: flex; align-items: center; gap: 24px; min-width: 0; }
+    .brand img { width: min(190px, 38vw); height: auto; object-fit: contain; }
+
+    .brand-copy h1 { margin: 0; color: var(--traxall-blue); font-size: clamp(20px, 2.3vw, 30px); }
+    .brand-copy p { margin: 5px 0 0; color: var(--muted); font-size: 13px; }
+
+    .language-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 0 0 auto;
+      padding: 8px 10px 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #F9FBFD;
+    }
+
+    .language-label { font-size: 13px; font-weight: 700; color: var(--traxall-blue); }
+    .language-options { display: flex; gap: 6px; }
+
+    .flag-button {
+      border: 2px solid transparent;
+      border-radius: 8px;
+      background: var(--white);
+      padding: 5px 7px;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+    .flag-button .flag { font-size: 20px; }
+    .flag-button span:last-child { font-size: 12px; font-weight: 700; }
+    .language-options .flag-button {
+      width: 38px !important;
+      min-width: 38px !important;
+      max-width: 38px !important;
+      height: 28px !important;
+      min-height: 28px !important;
+      max-height: 28px !important;
+      padding: 3px !important;
+      overflow: hidden !important;
+      flex: 0 0 38px !important;
+    }
+    .language-options .flag-button img {
+      display: block !important;
+      width: 28px !important;
+      min-width: 28px !important;
+      max-width: 28px !important;
+      height: 18px !important;
+      min-height: 18px !important;
+      max-height: 18px !important;
+      object-fit: cover !important;
+      border-radius: 2px;
+    }
+    .flag-button:hover { transform: translateY(-1px); border-color: #B9C8D7; }
+    .flag-button.active { border-color: var(--traxall-orange); box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.18); }
+
+    main { width: min(1400px, calc(100% - 40px)); margin: 20px auto 30px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 2px 2px 10px #0003;
+      overflow: hidden;
+    }
+
+    .card-header {
+      min-height: 70px;
+      padding: 18px 24px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      color: var(--traxall-blue);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .card-header h2 { margin: 0; font-size: 18px; }
+    .step { color: #64748B; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+    .card-body { padding: 24px; }
+
+    .upload-zone {
+      min-height: 205px;
+      border: 2px dashed #AFC1D2;
+      border-radius: 10px;
+      background: #F8FBFD;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 26px;
+      transition: 0.2s ease;
+      cursor: pointer;
+    }
+    .upload-zone:hover, .upload-zone.dragover { border-color: var(--traxall-orange); background: #FFF9EE; }
+    .upload-icon { width: 52px; height: 52px; margin-bottom: 12px; color: var(--traxall-blue); }
+    .upload-zone strong { color: var(--traxall-blue); font-size: 16px; }
+    .upload-zone span { margin-top: 7px; color: var(--muted); font-size: 13px; }
+    #fileInput { display: none; }
+
+    .file-info {
+      margin-top: 16px;
+      min-height: 48px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #F9FBFD;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .file-info.loaded { color: var(--success); border-color: #A7D7C6; background: #F0FAF6; }
+    .file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .period-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+    label.field-label { display: block; margin-bottom: 8px; color: var(--traxall-blue); font-size: 13px; font-weight: 700; }
+
+    .date-wrap { position: relative; }
+    .date-wrap input {
+      width: 100%;
+      height: 46px;
+      padding: 0 44px 0 13px;
+      border: 1px solid #BFCBD7;
+      border-radius: 10px;
+      color: var(--text);
+      background: var(--white);
+      font: inherit;
+      font-size: 14px;
+      outline: none;
+    }
+    .date-wrap input:focus { border-color: var(--traxall-orange); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.16); }
+    .calendar-icon { position: absolute; right: 13px; top: 50%; transform: translateY(-50%); color: var(--traxall-blue); pointer-events: none; }
+
+    .select-all-row {
+      margin-bottom: 15px;
+      padding: 10px 12px;
+      border: 1px solid #F8CA79;
+      border-radius: 11px;
+      background: #FFF8E8;
+    }
+
+    .check-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 16px;
+    }
+
+    .check-row { display: flex; align-items: flex-start; gap: 9px; min-height: 26px; font-size: 13px; cursor: pointer; }
+    .check-row input { margin: 2px 0 0; width: 17px; height: 17px; accent-color: var(--traxall-orange); flex: 0 0 auto; }
+    .check-row span { line-height: 1.4; }
+    .select-all-row .check-row { align-items: center; font-weight: 700; color: var(--traxall-blue); }
+
+    .actions-card { margin-top: 24px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 14px; }
+
+    .btn {
+      min-height: 48px;
+      padding: 0 20px;
+      border: 0;
+      border-radius: 11px;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 7px 15px rgba(18, 59, 99, 0.16); }
+    .btn-primary { background: var(--traxall-orange); color: var(--traxall-blue); }
+    .btn-secondary { background: #16875d; color: var(--white); }
+    .btn:disabled { background: #D7DCE1; color: #8B949E; cursor: not-allowed; box-shadow: none; }
+    .btn svg { width: 21px; height: 21px; }
+
+    .status {
+      margin-top: 16px;
+      min-height: 48px;
+      padding: 13px 15px;
+      border-radius: 11px;
+      background: var(--traxall-light-blue);
+      color: var(--traxall-blue);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .status.success { background: #ECF8F3; color: var(--success); }
+    .status.error { background: #FFF0EF; color: var(--danger); }
+
+    .summary { margin-top: 16px; display: none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .summary.visible { display: grid; }
+    .summary-item { padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: #FAFCFE; }
+    .summary-item span { display: block; color: var(--muted); font-size: 11px; margin-bottom: 5px; }
+    .summary-item strong { color: var(--traxall-blue); font-size: 18px; }
+
+    /* Compacte definitieve layout */
+    .topbar {
+      width: min(1400px, calc(100% - 40px));
+      min-height: 92px;
+      margin: 20px auto 0;
+      padding: 18px 24px;
+    }
+    .language-box {
+      gap: 18px;
+      padding: 16px 20px;
+      border-radius: 12px;
+    }
+    .language-label { font-size: 18px; }
+    .language-options { gap: 12px; }
+    .language-options .flag-button {
+      width: 76px !important;
+      min-width: 76px !important;
+      max-width: 76px !important;
+      height: 56px !important;
+      min-height: 56px !important;
+      max-height: 56px !important;
+      padding: 6px !important;
+      flex: 0 0 76px !important;
+    }
+    .language-options .flag-button img {
+      width: 58px !important;
+      min-width: 58px !important;
+      max-width: 58px !important;
+      height: 38px !important;
+      min-height: 38px !important;
+      max-height: 38px !important;
+    }
+    .card-header { min-height: 54px; padding: 13px 20px; }
+    .card-header h2, .card-header .step {
+      color: var(--traxall-blue);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+    .card-body { padding: 18px 20px; }
+    .upload-zone {
+      min-height: 58px;
+      padding: 9px 14px;
+      flex-direction: row;
+      justify-content: flex-start;
+      gap: 12px;
+      text-align: left;
+      border-style: solid;
+    }
+    .upload-icon { width: 30px; height: 30px; margin: 0; flex: 0 0 auto; }
+    .upload-zone strong { font-size: 14px; }
+    .upload-zone span { display: none; }
+    .file-info { margin-top: 10px; min-height: 40px; padding: 9px 12px; }
+    .period-grid { margin-top: 14px; gap: 12px; }
+    .date-wrap input { height: 40px; }
+    .select-all-row { margin-bottom: 10px; padding: 6px 9px; border-radius: 8px; }
+    .check-grid {
+      display: grid;
+      grid-template-rows: repeat(6, minmax(24px, auto));
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px 14px;
+    }
+    .check-row { min-height: 24px; gap: 7px; font-size: 12px; }
+    .check-row input { width: 15px; height: 15px; }
+    .actions-card { margin-top: 18px; }
+    .actions-card .card-body { padding-bottom: 18px; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 14px;
+      gap: 10px;
+    }
+    .summary.visible { display: grid; }
+    .summary-item { padding: 12px 14px; }
+
+    /* Definitieve pagina-indeling */
+    .topbar {
+      width: min(1400px, calc(100% - 40px));
+      min-height: 132px;
+      margin: 20px auto 0;
+      padding: 20px 36px;
+      display: grid;
+      grid-template-columns: 220px 1fr 220px;
+      align-items: center;
+    }
+    .topbar-logo { width: min(190px, 100%); max-height: 86px; object-fit: contain; justify-self: start; }
+    .topbar h1 { margin: 0; color: var(--traxall-blue); font-size: 28px; text-align: center; }
+    .topbar-spacer { width: 220px; }
+    .grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: stretch; }
+    .left-stack { display: grid; grid-template-rows: 1fr 1fr; gap: 18px; min-height: 100%; }
+    .left-stack > .card { min-height: 0; }
+    .card-header { min-height: 54px; padding: 13px 20px; }
+    .card-header h2, .card-header .step { color: var(--traxall-blue); font-size: 18px; font-weight: 700; letter-spacing: 0; text-transform: none; }
+    .card-body { padding: 18px 20px; }
+    .upload-zone { min-height: 58px; padding: 9px 14px; flex-direction: row; justify-content: flex-start; gap: 12px; text-align: left; border-style: solid; }
+    .upload-icon { width: 30px; height: 30px; margin: 0; flex: 0 0 auto; }
+    .upload-zone strong { font-size: 14px; }
+    .upload-zone span { display: none; }
+    .file-info { margin-top: 10px; min-height: 40px; padding: 9px 12px; }
+    .period-card .card-body { display: flex; align-items: center; justify-content: center; }
+    .period-card .period-grid { width: auto; margin: 0; display: flex; justify-content: center; align-items: flex-end; gap: 34px; }
+    .period-card .period-grid > div { flex: 0 0 190px; width: 190px; }
+    .period-card .field-label { margin-bottom: 8px; font-size: 16px; text-align: center; }
+    .period-card .date-wrap input { width: 190px; height: 48px; padding-left: 16px; font-size: 16px; text-align: center; }
+    .cost-options-box { height: 100%; padding: 12px 14px; border: 1px solid #AFC1D2; border-radius: 10px; background: #F8FBFD; }
+    .select-all-row { width: max-content; margin: 0 auto 10px; padding: 6px 12px; display: flex; justify-content: center; }
+    .check-grid { grid-template-rows: repeat(6, minmax(24px, auto)); grid-auto-flow: column; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 14px; }
+    .check-row { min-height: 24px; gap: 7px; font-size: 12px; }
+    .check-row input { width: 15px; height: 15px; }
+    .actions-card, .results-card { margin-top: 18px; }
+    .actions { align-items: center; gap: 16px; }
+    .action-language-box { margin-left: auto; order: 1; gap: 11px; padding: 9px 11px; border-radius: 9px; }
+    .action-language-box .language-label { font-size: 14px; white-space: nowrap; }
+    .action-language-box .language-options { gap: 7px; }
+    .action-language-box .flag-button { width: 48px !important; min-width: 48px !important; max-width: 48px !important; height: 36px !important; min-height: 36px !important; max-height: 36px !important; padding: 4px !important; flex: 0 0 48px !important; font-size: 0 !important; overflow: hidden !important; }
+    .action-language-box .flag-button img { display: block !important; width: 34px !important; min-width: 34px !important; max-width: 34px !important; height: 22px !important; min-height: 22px !important; max-height: 22px !important; object-fit: cover !important; }
+    #processBtn { order: 2; min-height: 52px; font-size: 15px; }
+    #exportBtn { order: 3; min-height: 52px; font-size: 15px; }
+    .results-table-wrap { display: none; width: 100%; max-height: 520px; overflow: auto; border: 1px solid var(--border); border-radius: 8px; }
+    .results-table-wrap.visible { display: block; }
+    .results-empty { padding: 22px; color: var(--muted); text-align: center; background: #F8FBFD; border: 1px solid var(--border); border-radius: 8px; }
+    .results-empty.hidden { display: none; }
+    .results-table { width: 100%; min-width: 1650px; border-collapse: collapse; font-size: 12px; }
+    .results-table th { position: sticky; top: 0; z-index: 1; padding: 10px 9px; color: #fff; background: var(--traxall-blue); text-align: center; white-space: nowrap; }
+    .results-table td { padding: 8px 9px; border-bottom: 1px solid #dde3eb; text-align: center; white-space: nowrap; }
+    .results-table tbody tr:nth-child(even) td { background: #f5f7fa; }
+    #resultsCount { color: var(--traxall-blue); font-size: 14px; }
+
+    .flatpickr-calendar { font-family: "Century Gothic", Arial, sans-serif; }
+    .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange { background: var(--traxall-orange); border-color: var(--traxall-orange); color: var(--traxall-blue); }
+
+    @media (max-width: 940px) {
+      .grid { grid-template-columns: 1fr; }
+      .left-stack { grid-template-rows: auto; }
+      .topbar { align-items: flex-start; }
+      .brand-copy p { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      .topbar { padding: 14px 18px; grid-template-columns: 120px 1fr 120px; }
+      .topbar-logo { width: 110px; }
+      .topbar-spacer { width: 120px; }
+      .language-box { align-self: flex-end; }
+      main { width: min(100% - 22px, 1320px); margin-top: 18px; }
+      .card-body { padding: 18px; }
+      .check-grid { grid-template-rows: none; grid-auto-flow: row; grid-template-columns: 1fr; }
+      .period-card .period-grid { flex-direction: column; gap: 12px; align-items: center; }
+      .period-grid { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; }
+      .btn { width: 100%; }
+      .summary { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <img src="logo-traxall.png" alt="TraXall logo" class="topbar-logo">
+    <h1 id="pageTitle">Inhoudingen</h1>
+    <div class="topbar-spacer" aria-hidden="true"></div>
+  </header>
+  <main>
+    <div class="grid">
+      <div class="left-stack">
+      <section class="card">
+        <div class="card-header">
+          <h2 id="uploadHeading">Facturenoverzicht uploaden</h2>
+          <span class="step" id="step1">Stap 1</span>
+        </div>
+        <div class="card-body">
+          <label class="upload-zone" id="uploadZone" for="fileInput">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path d="M4 15.5A4.5 4.5 0 0 1 8.5 11h.3A6 6 0 1 1 19 15.3"></path>
+              <path d="M12 12v8m0-8-3 3m3-3 3 3"></path>
+            </svg>
+            <strong id="uploadMain">Facturenoverzicht selecteren</strong>
+            
+          </label>
+          <input type="file" id="fileInput" accept=".xlsx,.xls,.xlsm">
+
+          <div class="file-info" id="fileInfo">
+            <span class="file-name" id="fileName">Nog geen bestand geselecteerd</span>
+            <span id="rowCount"></span>
+          </div>
+
+        </div>
+      </section>
+      <section class="card period-card">
+        <div class="card-header">
+          <h2>Factuurdatum periode</h2>
+          <span class="step">Stap 2</span>
+        </div>
+        <div class="card-body">
+          <div class="period-grid">
+            <div>
+              <label class="field-label" for="dateFrom" id="dateFromLabel">Begin</label>
+              <div class="date-wrap">
+                <input type="text" id="dateFrom" placeholder="dd-mm-jjjj" inputmode="numeric" autocomplete="off">
+                <svg class="calendar-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <label class="field-label" for="dateTo" id="dateToLabel">Eind</label>
+              <div class="date-wrap">
+                <input type="text" id="dateTo" placeholder="dd-mm-jjjj" inputmode="numeric" autocomplete="off">
+                <svg class="calendar-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      </div>
+      <section class="card">
+        <div class="card-header">
+          <h2 id="costHeading">Meenemen voor inhoudingen</h2>
+          <span class="step" id="step2">Stap 3</span>
+        </div>
+        <div class="card-body">
+          <div class="cost-options-box">
+            <div class="select-all-row">
+              <label class="check-row">
+                <input type="checkbox" id="selectAll">
+                <span id="selectAllText">Alles</span>
+              </label>
+            </div>
+            <div class="check-grid" id="costTypeList"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="card actions-card">
+      <div class="card-header">
+        <h2 id="processHeading">Verwerken en exporteren</h2>
+        <span class="step" id="step3">Stap 4</span>
+      </div>
+      <div class="card-body">
+        <div class="actions">
+          <div class="language-box action-language-box" aria-label="Taalkeuze">
+            <span class="language-label" id="languageLabel">Taal Inhoudingenfile:</span>
+            <div class="language-options">
+              <button type="button" class="flag-button active" id="langNL" aria-label="Nederlandse Excel-export" title="Nederlandse Excel-export"><img src="vlag-nl.png" alt="Nederlandse vlag"></button>
+              <button type="button" class="flag-button" id="langEN" aria-label="Engelse Excel-export" title="Engelse Excel-export"><img src="vlag-eng.png" alt="Britse vlag"></button>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary" id="processBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+            <span id="processBtnText">Inhoudingen verwerken</span>
+          </button>
+          <button type="button" class="btn btn-secondary" id="exportBtn" disabled>
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.5L13.5 2Zm.5 1.8L18.2 8H14V3.8ZM7 11h2.1l1.35 2.3L11.8 11H14l-2.4 3.7 2.55 4.3H12l-1.55-2.7L8.9 19H6.75l2.55-4.3L7 11Z"></path></svg>
+            <span id="exportBtnText">Exporteren naar Excel</span>
+          </button>
+        </div>
+
+        <div class="summary visible" id="summary">
+          <div class="summary-item"><span id="summarySourceLabel">Bronregels</span><strong id="summarySource">0</strong></div>
+          <div class="summary-item"><span id="summaryMatchedLabel">Gevonden inhoudingen</span><strong id="summaryMatched">0</strong></div>
+          <div class="summary-item"><span id="summaryTotalLabel">Totaal incl. BTW</span><strong id="summaryTotal">€ 0,00</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card results-card" id="resultsCard">
+      <div class="card-header">
+        <h2>Resultaten</h2>
+        <span id="resultsCount">0 regels</span>
+      </div>
+      <div class="card-body">
+        <div class="results-empty" id="resultsEmpty">Klik op Inhoudingen verwerken om de resultaten te tonen.</div>
+        <div class="results-table-wrap" id="resultsTableWrap">
+          <table class="results-table">
+            <thead id="resultsHead"></thead>
+            <tbody id="resultsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    'use strict';
+
+    const COST_TYPES = [
+      'Administratiekosten Boete', 'Administratiekosten Tol', 'Bandenschade', 'Boetes',
+      'Diefstal', 'Doorbelaste Hulpverlening', 'Eigen risico', 'Herstel Laadpunt',
+      'Onderhoud doorbelast', 'Overige schadekosten', 'Parkeer kosten', 'Ruitschade',
+      'Schade', 'Schadeherstel Pool', 'Toll', 'Veerpont', 'Wassen'
+    ];
+
+    const COST_TRANSLATIONS = {
+      'Administratiekosten Boete':'Fine administration costs','Administratiekosten Tol':'Toll administration costs',
+      'Bandenschade':'Tyre damage','Boetes':'Fines','Diefstal':'Theft','Doorbelaste Hulpverlening':'Recharged roadside assistance',
+      'Eigen risico':'Deductible','Herstel Laadpunt':'Charging point repair','Onderhoud doorbelast':'Recharged maintenance',
+      'Overige schadekosten':'Other damage costs','Parkeer kosten':'Parking costs','Ruitschade':'Glass damage',
+      'Schade':'Damage','Schadeherstel Pool':'Pool damage repair','Toll':'Toll','Veerpont':'Ferry','Wassen':'Car wash'
+    };
+
+    const SOURCE_HEADERS = [
+      'Produit', 'Immat', 'Prenom_conducteur', 'Nom_conducteur', 'Matricule_conducteur',
+      'Date', 'Date_debut', 'Date_fin', 'HT', 'TVA', 'TTC', 'Fournisseur',
+      'Centre_de_cout', 'Centre_de_cout_Libellé', 'Axe_2_Libellé', 'Numero_facture'
+    ];
+
+    const COLUMNS = {
+      nl: [
+        ['Fournisseur', 'Leverancier', 'text'], ['Produit', 'Kostensoort', 'text'],
+        ['Immat', 'Kenteken', 'text'], ['__driver', 'Berijdernaam', 'text'],
+        ['Matricule_conducteur', 'Personeelsnummer', 'text'], ['HT', 'Bedrag excl BTW', 'number'],
+        ['TVA', 'BTW', 'number'], ['TTC', 'Bedrag incl BTW', 'number'],
+        ['Date', 'Factuurdatum', 'date'], ['Numero_facture', 'Factuurnummer', 'text'],
+        ['Date_debut', 'Datum start', 'date'], ['Date_fin', 'Datum eind', 'date'],
+        ['Centre_de_cout', 'Code kostenplaats', 'text'], ['Centre_de_cout_Libellé', 'Kostenplaats', 'text'],
+        ['Axe_2_Libellé', 'Entiteit', 'text']
+      ],
+      en: [
+        ['Fournisseur', 'Supplier', 'text'], ['Produit', 'Cost type', 'text'],
+        ['Immat', 'Registration plate', 'text'], ['__driver', 'Driver name', 'text'],
+        ['Matricule_conducteur', 'Personell number', 'text'], ['HT', 'Amount excl VAT', 'number'],
+        ['TVA', 'VAT', 'number'], ['TTC', 'Amount incl VAT', 'number'],
+        ['Date', 'Invoice date', 'date'], ['Numero_facture', 'Invoice number', 'text'],
+        ['Date_debut', 'Date start', 'date'], ['Date_fin', 'Date end', 'date'],
+        ['Centre_de_cout', 'Code cost center', 'text'], ['Centre_de_cout_Libellé', 'Cost center', 'text'],
+        ['Axe_2_Libellé', 'Entity', 'text']
+      ]
+    };
+
+    const UI = {
+      nl: {
+        pageTitle: 'Inhoudingen verwerken', pageSubtitle: 'Selecteer factuurregels en exporteer een gebruiksklaar Excel-overzicht.',
+        languageLabel: 'Taal:', uploadHeading: 'Facturenoverzicht uploaden', step1: 'Stap 1', step2: 'Stap 2', step3: 'Stap 3',
+        uploadMain: 'Klik om een Excel-bestand te kiezen', uploadSub: 'of sleep het facturenoverzicht naar dit vak',
+        noFile: 'Nog geen bestand geselecteerd', rows: 'regels', dateFromLabel: 'Begin', dateToLabel: 'Eind',
+        costHeading: 'Meenemen voor inhoudingen', selectAllText: 'Alles', processHeading: 'Verwerken en exporteren',
+        processBtnText: 'Inhoudingen verwerken', exportBtnText: 'Exporteren naar Excel',
+        initialStatus: 'Upload een facturenoverzicht, kies de factuurperiode en selecteer minimaal één kostensoort.',
+        summarySourceLabel: 'Bronregels', summaryMatchedLabel: 'Gevonden inhoudingen', summaryTotalLabel: 'Totaal incl. BTW',
+        invalidFile: 'Het bestand kon niet worden gelezen. Controleer of het een geldig Excel-bestand is.',
+        missingHeaders: 'Verplichte kolommen ontbreken:', noSelection: 'Selecteer minimaal één kostensoort.',
+        noData: 'Upload eerst een facturenoverzicht.', invalidPeriod: 'Voer twee geldige datums in als dd-mm-jjjj.',
+        reversedPeriod: 'De begindatum mag niet na de einddatum liggen.', processed: 'Verwerking voltooid. De Excel-export staat klaar.',
+        noDeductions: 'Geen inhoudingen gevonden binnen de gekozen periode en kostensoorten.', exported: 'Het Excel-bestand is geëxporteerd.',
+        noDeductionsCell: 'Geen inhoudingen', sheetName: 'Inhoudingen', filePrefix: 'Inhoudingen',
+        invalidInvoiceDates: 'regels overgeslagen omdat de factuurdatum leeg of ongeldig is'
+      },
+      en: {
+        pageTitle: 'Process deductions', pageSubtitle: 'Select invoice lines and export a ready-to-use Excel overview.',
+        languageLabel: 'Language:', uploadHeading: 'Upload invoice overview', step1: 'Step 1', step2: 'Step 2', step3: 'Step 3',
+        uploadMain: 'Click to select an Excel file', uploadSub: 'or drag the invoice overview into this area',
+        noFile: 'No file selected', rows: 'rows', dateFromLabel: 'Begin', dateToLabel: 'Eind',
+        costHeading: 'Include for deductions', selectAllText: 'All', processHeading: 'Process and export',
+        processBtnText: 'Process deductions', exportBtnText: 'Export to Excel',
+        initialStatus: 'Upload an invoice overview, choose the invoice period and select at least one cost type.',
+        summarySourceLabel: 'Source rows', summaryMatchedLabel: 'Deductions found', summaryTotalLabel: 'Total incl. VAT',
+        invalidFile: 'The file could not be read. Check whether it is a valid Excel file.',
+        missingHeaders: 'Required columns are missing:', noSelection: 'Select at least one cost type.',
+        noData: 'Upload an invoice overview first.', invalidPeriod: 'Enter two valid dates as dd-mm-yyyy.',
+        reversedPeriod: 'The start date cannot be after the end date.', processed: 'Processing completed. The Excel export is ready.',
+        noDeductions: 'No deductions were found within the selected period and cost types.', exported: 'The Excel file has been exported.',
+        noDeductionsCell: 'No deductions', sheetName: 'Deductions', filePrefix: 'Deductions',
+        invalidInvoiceDates: 'rows skipped because the invoice date is empty or invalid'
+      }
+    };
+
+    let language = 'nl';
+    let sourceRows = [];
+    let processedRows = [];
+    let invalidDateCount = 0;
+    let hasProcessed = false;
+
+    const els = Object.fromEntries([
+      'fileInput','uploadZone','fileInfo','fileName','rowCount','dateFrom','dateTo','costTypeList','selectAll',
+      'processBtn','exportBtn','status','summary','summarySource','summaryMatched','summaryTotal','langNL','langEN',
+      'resultsCard','resultsEmpty','resultsTableWrap','resultsHead','resultsBody','resultsCount'
+    ].map(id => [id, document.getElementById(id)]));
+
+    const fpOptions = {
+      dateFormat: 'd-m-Y',
+      defaultDate: new Date(),
+      allowInput: true,
+      locale: flatpickr.l10ns.nl,
+      disableMobile: true
+    };
+    const dateFromPicker = flatpickr(els.dateFrom, fpOptions);
+    const dateToPicker = flatpickr(els.dateTo, fpOptions);
+
+    function renderCostTypes() {
+      els.costTypeList.innerHTML = COST_TYPES.map((name, index) => `
+        <label class="check-row" for="cost-${index}">
+          <input type="checkbox" class="cost-check" id="cost-${index}" value="${escapeHtml(name)}">
+          <span>${escapeHtml(name)}</span>
+        </label>`).join('');
+
+      document.querySelectorAll('.cost-check').forEach(cb => cb.addEventListener('change', () => {
+        const checks = [...document.querySelectorAll('.cost-check')];
+        els.selectAll.checked = checks.every(item => item.checked);
+        els.selectAll.indeterminate = checks.some(item => item.checked) && !checks.every(item => item.checked);
+        invalidateResult();
+      }));
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    }
+
+    function applyLanguage(nextLanguage) {
+      language = nextLanguage;
+      els.langNL.classList.toggle('active', language === 'nl');
+      els.langEN.classList.toggle('active', language === 'en');
+      els.langNL.setAttribute('aria-pressed', String(language === 'nl'));
+      els.langEN.setAttribute('aria-pressed', String(language === 'en'));
+      invalidateResult();
+    }
+
+    function setStatus(message, type = '') {
+      // Statusbalk is bewust niet zichtbaar.
+    }
+
+    function invalidateResult() {
+      hasProcessed = false;
+      processedRows = [];
+      els.exportBtn.disabled = true;
+      els.summary.classList.add('visible');
+    }
+
+    function normalizeHeader(value) {
+      return String(value ?? '').trim().replace(/\u00A0/g, ' ').normalize('NFC');
+    }
+
+    function findHeaderRow(matrix) {
+      const maxRows = Math.min(matrix.length, 50);
+      for (let i = 0; i < maxRows; i++) {
+        const headers = (matrix[i] || []).map(normalizeHeader);
+        if (headers.includes('Produit') && headers.includes('Immat') && headers.includes('Date')) return i;
+      }
+      return -1;
+    }
+
+    function rowsFromMatrix(matrix, headerIndex) {
+      const headers = matrix[headerIndex].map(normalizeHeader);
+      return matrix.slice(headerIndex + 1)
+        .filter(row => row.some(value => value !== null && value !== undefined && String(value).trim() !== ''))
+        .map(row => Object.fromEntries(headers.map((header, index) => [header, row[index] ?? ''])));
+    }
+
+    async function handleFile(file) {
+      invalidateResult();
+      try {
+        const buffer = await file.arrayBuffer();
+        const workbook = XLSX.read(buffer, { type: 'array', cellDates: false, raw: true });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const matrix = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '', raw: true });
+        const headerIndex = findHeaderRow(matrix);
+
+        if (headerIndex < 0) throw new Error('HEADER_NOT_FOUND');
+        const foundHeaders = matrix[headerIndex].map(normalizeHeader);
+        const missing = SOURCE_HEADERS.filter(header => !foundHeaders.includes(header));
+        if (missing.length) {
+          sourceRows = [];
+          els.fileInfo.classList.remove('loaded');
+          els.fileName.textContent = file.name;
+          els.rowCount.textContent = '';
+          setStatus(`${UI[language].missingHeaders} ${missing.join(', ')}`, 'error');
+          return;
+        }
+
+        sourceRows = rowsFromMatrix(matrix, headerIndex);
+        els.fileInfo.classList.add('loaded');
+        els.fileName.textContent = file.name;
+        els.rowCount.textContent = `${sourceRows.length.toLocaleString(language === 'nl' ? 'nl-NL' : 'en-GB')} ${UI[language].rows}`;
+        setStatus(UI[language].initialStatus, '');
+      } catch (error) {
+        console.error(error);
+        sourceRows = [];
+        els.fileInfo.classList.remove('loaded');
+        els.fileName.textContent = file.name || UI[language].noFile;
+        els.rowCount.textContent = '';
+        setStatus(error.message === 'HEADER_NOT_FOUND' ? `${UI[language].missingHeaders} Produit, Immat, Date` : UI[language].invalidFile, 'error');
+      }
+    }
+
+    function parseDateOnly(value) {
+      if (value === null || value === undefined || value === '') return null;
+      if (value instanceof Date && !Number.isNaN(value.getTime())) return new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate(), 12, 0, 0));
+
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        const parts = XLSX.SSF.parse_date_code(value);
+        if (!parts) return null;
+        return new Date(Date.UTC(parts.y, parts.m - 1, parts.d, 12, 0, 0));
+      }
+
+      const text = String(value).trim();
+      let match = text.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
+      if (match) return safeUtcDate(+match[3], +match[2], +match[1]);
+      match = text.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?:[ T].*)?$/);
+      if (match) return safeUtcDate(+match[1], +match[2], +match[3]);
+
+      const parsed = new Date(text);
+      return Number.isNaN(parsed.getTime()) ? null : new Date(Date.UTC(parsed.getUTCFullYear(), parsed.getUTCMonth(), parsed.getUTCDate(), 12, 0, 0));
+    }
+
+    function safeUtcDate(year, month, day) {
+      const date = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+      return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day ? date : null;
+    }
+
+    function safeLocalDate(year, month, day) {
+      const date = new Date(year, month - 1, day);
+      return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day ? date : null;
+    }
+
+    function parseTypedDate(value) {
+      const match = String(value).trim().match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+      return match ? safeLocalDate(+match[3], +match[2], +match[1]) : null;
+    }
+
+    function parseAmount(value) {
+      if (typeof value === 'number' && Number.isFinite(value)) return value;
+      if (value === null || value === undefined || value === '') return 0;
+      let text = String(value).trim().replace(/\s/g, '').replace(/[€£$]/g, '');
+      if (text.includes(',') && text.includes('.')) {
+        text = text.lastIndexOf(',') > text.lastIndexOf('.') ? text.replace(/\./g, '').replace(',', '.') : text.replace(/,/g, '');
+      } else if (text.includes(',')) {
+        text = text.replace(/\./g, '').replace(',', '.');
+      }
+      const result = Number(text);
+      return Number.isFinite(result) ? result : 0;
+    }
+
+    function cleanText(value) {
+      if (value === null || value === undefined) return '';
+      return String(value).trim();
+    }
+
+    function normalizedCost(value) {
+      return cleanText(value).replace(/\s+/g, ' ').toLocaleLowerCase('nl-NL');
+    }
+
+    function buildOutputRow(row) {
+      return {
+        ...row,
+        __driver: [cleanText(row.Nom_conducteur), cleanText(row.Prenom_conducteur)].filter(Boolean).join(' '),
+        Produit: language === 'en' ? (COST_TRANSLATIONS[cleanText(row.Produit)] || cleanText(row.Produit)) : cleanText(row.Produit),
+        HT: parseAmount(row.HT), TVA: parseAmount(row.TVA), TTC: parseAmount(row.TTC),
+        Date: parseDateOnly(row.Date), Date_debut: parseDateOnly(row.Date_debut), Date_fin: parseDateOnly(row.Date_fin)
+      };
+    }
+
+    function formatDateForDisplay(value) {
+      if (!(value instanceof Date) || Number.isNaN(value.getTime())) return '';
+      return `${String(value.getUTCDate()).padStart(2, '0')}-${String(value.getUTCMonth() + 1).padStart(2, '0')}-${value.getUTCFullYear()}`;
+    }
+
+    function renderResultsTable() {
+      const columns = COLUMNS[language];
+      els.resultsHead.innerHTML = `<tr>${columns.map(([, header]) => `<th>${escapeHtml(header)}</th>`).join('')}</tr>`;
+      const rows = processedRows.length ? processedRows : [{ Fournisseur: UI[language].noDeductionsCell }];
+      els.resultsBody.innerHTML = rows.map(row => `<tr>${columns.map(([key, , type]) => {
+        let value = row[key];
+        if (type === 'date') value = formatDateForDisplay(value);
+        else if (type === 'number') value = new Intl.NumberFormat(language === 'nl' ? 'nl-NL' : 'en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value || 0));
+        else value = cleanText(value);
+        return `<td>${escapeHtml(value)}</td>`;
+      }).join('')}</tr>`).join('');
+      els.resultsEmpty.classList.add('hidden');
+      els.resultsTableWrap.classList.add('visible');
+      els.resultsCount.textContent = `${processedRows.length} ${processedRows.length === 1 ? 'regel' : 'regels'}`;
+    }
+
+    function processDeductions() {
+      invalidateResult();
+      if (!sourceRows.length) return setStatus(UI.nl.noData, 'error');
+
+      const selected = [...document.querySelectorAll('.cost-check:checked')].map(cb => normalizedCost(cb.value));
+      if (!selected.length) return setStatus(UI.nl.noSelection, 'error');
+
+      const from = parseTypedDate(els.dateFrom.value);
+      const to = parseTypedDate(els.dateTo.value);
+      if (!from || !to) return setStatus(UI.nl.invalidPeriod, 'error');
+      if (from > to) return setStatus(UI.nl.reversedPeriod, 'error');
+
+      const selectedSet = new Set(selected);
+      invalidDateCount = 0;
+      processedRows = sourceRows.filter(row => {
+        const invoiceDate = parseDateOnly(row.Date);
+        if (!invoiceDate) { invalidDateCount++; return false; }
+        return selectedSet.has(normalizedCost(row.Produit)) && invoiceDate >= from && invoiceDate <= to;
+      }).map(buildOutputRow);
+
+      hasProcessed = true;
+      els.exportBtn.disabled = false;
+      els.summary.classList.add('visible');
+      els.summarySource.textContent = sourceRows.length.toLocaleString(language === 'nl' ? 'nl-NL' : 'en-GB');
+      els.summaryMatched.textContent = processedRows.length.toLocaleString(language === 'nl' ? 'nl-NL' : 'en-GB');
+      const total = processedRows.reduce((sum, row) => sum + row.TTC, 0);
+      els.summaryTotal.textContent = new Intl.NumberFormat(language === 'nl' ? 'nl-NL' : 'en-GB', { style: 'currency', currency: 'EUR' }).format(total);
+
+      renderResultsTable();
+      const baseMessage = processedRows.length ? UI.nl.processed : UI.nl.noDeductions;
+      const dateWarning = invalidDateCount ? ` ${invalidDateCount} ${UI.nl.invalidInvoiceDates}.` : '';
+      setStatus(baseMessage + dateWarning, processedRows.length ? 'success' : '');
+    }
+
+    function dateToExcelSerial(value) {
+      if (!(value instanceof Date) || Number.isNaN(value.getTime())) return null;
+      return Math.floor(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()) / 86400000) + 25569;
+    }
+
+    async function exportToExcel() {
+      if (!hasProcessed) return;
+
+      const workbook = new ExcelJS.Workbook();
+      workbook.creator = 'TraXall';
+      workbook.created = new Date();
+      const worksheet = workbook.addWorksheet(UI[language].sheetName, {
+        views: [{ state: 'frozen', ySplit: 1, showGridLines: false }]
+      });
+
+      const columns = COLUMNS[language];
+      worksheet.columns = columns.map(([key, header, type]) => ({
+        key, header,
+        width: type === 'text' ? Math.min(34, Math.max(14, header.length + 4)) : type === 'date' ? 15 : 17
+      }));
+
+      const rowsToWrite = processedRows.length ? processedRows : [{ Fournisseur: UI[language].noDeductionsCell }];
+      rowsToWrite.forEach(source => {
+        const output = {};
+        columns.forEach(([key, , type]) => {
+          const value = source[key];
+          if (type === 'text') output[key] = cleanText(value);
+          else if (type === 'date') output[key] = dateToExcelSerial(value);
+          else output[key] = value ?? null;
+        });
+        worksheet.addRow(output);
+      });
+
+      const header = worksheet.getRow(1);
+      header.height = 28;
+      header.eachCell(cell => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF213153' } };
+        cell.font = { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.alignment = { vertical: 'middle', horizontal: 'left' };
+      });
+
+      worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return;
+        row.height = 21;
+        row.eachCell({ includeEmpty: true }, cell => {
+          cell.font = { name: 'Arial', size: 10, color: { argb: 'FF17324D' } };
+          cell.alignment = { vertical: 'middle', horizontal: 'left' };
+          if (rowNumber % 2 === 1) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF4F7FA' } };
+        });
+      });
+
+      columns.forEach(([, , type], index) => {
+        const column = worksheet.getColumn(index + 1);
+        if (type === 'number') column.numFmt = '#,##0.00;[Red]-#,##0.00';
+        else if (type === 'date') column.numFmt = 'dd-mm-yyyy';
+        else column.numFmt = '@';
+        column.eachCell({ includeEmpty: true }, (cell, rowNumber) => {
+          cell.alignment = {
+            vertical: 'middle',
+            horizontal: rowNumber === 1 ? 'left' : (type === 'number' || type === 'date' ? 'right' : 'left')
+          };
+        });
+      });
+      worksheet.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: columns.length } };
+      worksheet.getRow(1).eachCell(cell => { cell.alignment = { vertical: 'middle', horizontal: 'left' }; });
+
+      const borderColor = { argb: 'FFD8E1EA' };
+      worksheet.eachRow(row => row.eachCell({ includeEmpty: true }, cell => {
+        cell.border = { bottom: { style: 'hair', color: borderColor } };
+      }));
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const fromPart = els.dateFrom.value.replace(/-/g, '');
+      const toPart = els.dateTo.value.replace(/-/g, '');
+      saveAs(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), `${UI[language].filePrefix}_${fromPart}_${toPart}.xlsx`);
+      setStatus(UI.nl.exported, 'success');
+    }
+
+    els.fileInput.addEventListener('change', event => {
+      const file = event.target.files[0];
+      if (file) handleFile(file);
+    });
+
+    ['dragenter', 'dragover'].forEach(name => els.uploadZone.addEventListener(name, event => {
+      event.preventDefault();
+      els.uploadZone.classList.add('dragover');
+    }));
+    ['dragleave', 'drop'].forEach(name => els.uploadZone.addEventListener(name, event => {
+      event.preventDefault();
+      els.uploadZone.classList.remove('dragover');
+    }));
+    els.uploadZone.addEventListener('drop', event => {
+      const file = event.dataTransfer.files[0];
+      if (file) handleFile(file);
+    });
+
+    els.selectAll.addEventListener('change', () => {
+      document.querySelectorAll('.cost-check').forEach(cb => { cb.checked = els.selectAll.checked; });
+      els.selectAll.indeterminate = false;
+      invalidateResult();
+    });
+    els.dateFrom.addEventListener('change', invalidateResult);
+    els.dateTo.addEventListener('change', invalidateResult);
+    els.langNL.addEventListener('click', () => applyLanguage('nl'));
+    els.langEN.addEventListener('click', () => applyLanguage('en'));
+    els.processBtn.addEventListener('click', processDeductions);
+    els.exportBtn.addEventListener('click', exportToExcel);
+
+    renderCostTypes();
+    applyLanguage('nl');
+  </script>
+</body>
+</html>
